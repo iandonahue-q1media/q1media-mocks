@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pala Casino Spa & Resort — Q1Media Visitation Report 2025</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.8.0/Recharts.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#0f0f1a;color:#f0f0ff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,system-ui,sans-serif;min-height:100vh}
+button{font-family:inherit;cursor:pointer}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:#1a1a2e}
+::-webkit-scrollbar-thumb{background:#2e2e4a;border-radius:3px}
+@media print{.no-print{display:none!important}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<div id="root"><p style="color:#f0f0ff;padding:40px;font-size:16px">Loading dashboard...</p></div>
+<script>
+// Wait for all scripts to load before running
+(function() {
+  var brand = {
+    purple:'#3d1d6b',purpleSecondary:'#6b2fb3',
+    magenta:'#c724b1',lightBlue:'#7dd3f7',
+    bgPage:'#0f0f1a',bgSurface:'#1a1a2e',bgCard:'#1e1e32',bgTint:'#2a1a4a',
+    border:'#2e2e4a',
+    textPrimary:'#f0f0ff',textSecondary:'#9090b0',textTertiary:'#5a5a7a'
+  };
+  var cc=[brand.purple,brand.magenta,brand.lightBlue,brand.purpleSecondary,'#6b6b8a'];
+
+  var data={
+    clientName:'Pala Casino Spa & Resort',
+    reportingPeriod:'Jan 2025 \u2013 Dec 2025',
+    kpis:{totalVisits:412800,uniqueVisitors:138400,repeatRate:66.5,cpv:8.42,cpuv:25.11,mediaSpend:3475000,impressions:62800000,clicks:234000,ctr:0.37,freqMonthly:2.6,freqQuarterly:8.1,freqAnnual:22.4},
+    weeklyTrends:[
+      {week:'W1',visits:6900,repeat:4100},{week:'W2',visits:7200,repeat:4400},{week:'W3',visits:7800,repeat:4900},{week:'W4',visits:7500,repeat:4700},
+      {week:'W5',visits:8600,repeat:5400},{week:'W6',visits:9200,repeat:5800},{week:'W7',visits:10400,repeat:6600},{week:'W8',visits:11200,repeat:7100},
+      {week:'W9',visits:10100,repeat:6400},{week:'W10',visits:9400,repeat:5900},{week:'W11',visits:8600,repeat:5400},{week:'W12',visits:8000,repeat:5100}
+    ],
+    repeatVsNew:[{label:'Repeat',pct:66.5},{label:'New',pct:33.5}],
+    visitsByDow:[{day:'Mon',v:38200},{day:'Tue',v:35600},{day:'Wed',v:42400},{day:'Thu',v:52800},{day:'Fri',v:78400},{day:'Sat',v:98600},{day:'Sun',v:66800}],
+    visitsByHour:[{hour:'12a',v:14200},{hour:'2a',v:9100},{hour:'4a',v:5400},{hour:'6a',v:3800},{hour:'8a',v:7200},{hour:'10a',v:14600},{hour:'12p',v:28400},{hour:'2p',v:36200},{hour:'4p',v:44800},{hour:'6p',v:51400},{hour:'8p',v:62200},{hour:'10p',v:55800}],
+    demographics:{
+      age:[{b:'21\u201334',p:16},{b:'35\u201344',p:23},{b:'45\u201354',p:28},{b:'55\u201364',p:21},{b:'65+',p:12}],
+      gender:[{label:'Male',pct:54},{label:'Female',pct:46}],
+      income:[{b:'<$50K',p:12},{b:'$50\u201375K',p:20},{b:'$75\u2013100K',p:26},{b:'$100\u2013150K',p:27},{b:'$150K+',p:15}]
+    },
+    topCities:[
+      {city:'San Diego',state:'CA',visits:38200,visitors:14600,share:10.6},{city:'Temecula',state:'CA',visits:31400,visitors:12100,share:8.8},
+      {city:'Escondido',state:'CA',visits:24600,visitors:9400,share:6.8},{city:'Murrieta',state:'CA',visits:19800,visitors:7600,share:5.5},
+      {city:'Oceanside',state:'CA',visits:16400,visitors:6200,share:4.6},{city:'Los Angeles',state:'CA',visits:14200,visitors:5400,share:3.9},
+      {city:'Riverside',state:'CA',visits:12600,visitors:4800,share:3.5},{city:'Vista',state:'CA',visits:11400,visitors:4300,share:3.2},
+      {city:'San Marcos',state:'CA',visits:9800,visitors:3700,share:2.7},{city:'Fallbrook',state:'CA',visits:8600,visitors:3200,share:2.4}
+    ],
+    distanceBands:[
+      {band:'Under 2 miles',visits:26400,visitors:10800,share:7.3},{band:'2\u20135 miles',visits:58200,visitors:22400,share:16.1},
+      {band:'5\u201310 miles',visits:71400,visitors:26800,share:19.8},{band:'10\u201350 miles',visits:128600,visitors:46200,share:35.6},
+      {band:'50\u2013100 miles',visits:86400,visitors:24600,share:23.9},{band:'100+ miles',visits:41800,visitors:7600,share:11.6}
+    ],
+    competitive:[
+      {name:'Pala Casino',visitors:138400,isClient:true},{name:"Harrah's Resort SoCal",visitors:112800,isClient:false},
+      {name:'Pechanga Resort',visitors:94600,isClient:false},{name:'Barona Resort',visitors:68400,isClient:false},
+      {name:'Valley View Casino',visitors:44200,isClient:false},{name:'Casino Pauma',visitors:26800,isClient:false}
+    ],
+    crossVisit:[
+      {from:'Pala Casino',to:"Harrah's Resort SoCal",pct:24},{from:'Pala Casino',to:'Pechanga Resort',pct:18},
+      {from:"Harrah's Resort SoCal",to:'Pala Casino',pct:31},{from:'Pechanga Resort',to:'Pala Casino',pct:22},
+      {from:'Barona Resort',to:'Pala Casino',pct:19},{from:'Valley View Casino',to:'Pala Casino',pct:27}
+    ],
+    tactics:[
+      {tactic:'PreRoll Video',visits:122400,visitors:41200,impressions:19800000,spend:1040000,moV:10200,moU:3600,qtV:30600,qtU:8800},
+      {tactic:'cTV / OTT',visits:88600,visitors:30400,impressions:12200000,spend:860000,moV:7383,moU:2760,qtV:22150,qtU:6800},
+      {tactic:'PMAX',visits:76400,visitors:26200,impressions:14400000,spend:720000,moV:6367,moU:2380,qtV:19100,qtU:5900},
+      {tactic:'Paid Social',visits:68200,visitors:21800,impressions:10600000,spend:560000,moV:5683,moU:1980,qtV:17050,qtU:4800},
+      {tactic:'Programmatic Display',visits:57200,visitors:18800,impressions:5800000,spend:295000,moV:4767,moU:1560,qtV:14300,qtU:3900}
+    ]
+  };
+
+  var fmt={
+    n:function(v){return v.toLocaleString('en-US')},
+    c:function(v){return v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(1)+'K':String(v)},
+    dc:function(v){return v>=1e6?'$'+(v/1e6).toFixed(1)+'M':v>=1e3?'$'+(v/1e3).toFixed(0)+'K':'$'+v.toFixed(2)},
+    pct:function(v){return v.toFixed(2)+'%'},
+    d:function(v){return '$'+v.toFixed(2)},
+    freq:function(v){return v.toFixed(1)+'x'}
+  };
+
+  var h=React.createElement;
+  var RC=Recharts;
+
+  function K(p){
+    return h('div',{style:{background:brand.bgCard,border:'1px solid '+brand.border,borderRadius:12,padding:'16px 18px',minHeight:96,display:'flex',flexDirection:'column',justifyContent:'space-between'}},
+      h('div',{style:{fontSize:11,fontWeight:500,color:brand.textSecondary,textTransform:'uppercase',letterSpacing:'0.06em'}},p.label),
+      h('div',null,
+        h('div',{style:{fontSize:26,fontWeight:600,color:p.accent?brand.magenta:brand.textPrimary,lineHeight:1.1}},p.value),
+        p.sub&&h('div',{style:{fontSize:11,color:brand.textTertiary,marginTop:3}},p.sub)
+      )
+    );
+  }
+
+  function Card(p){
+    return h('div',{style:{background:brand.bgCard,border:'1px solid '+brand.border,borderRadius:12,padding:18}},
+      h('div',{style:{marginBottom:14}},
+        h('div',{style:{fontSize:14,fontWeight:600,color:brand.textPrimary}},p.title),
+        p.subtitle&&h('div',{style:{fontSize:12,color:brand.textSecondary,marginTop:2}},p.subtitle)
+      ),
+      h('div',{style:{width:'100%',height:p.height||280}},p.children)
+    );
+  }
+
+  function Heading(p){
+    return h('div',{style:{margin:'24px 0 12px'}},
+      h('div',{style:{fontSize:16,fontWeight:600,color:brand.textPrimary,display:'inline-block',paddingBottom:4,borderBottom:'3px solid '+brand.lightBlue}},p.children)
+    );
+  }
+
+  function OriginsTable(p){
+    var rows=p.rows,showCity=p.showCity;
+    var max=Math.max.apply(null,rows.map(function(r){return r.share}));
+    var th={padding:'8px',fontSize:11,color:brand.textSecondary,fontWeight:500,textTransform:'uppercase',letterSpacing:'0.05em',borderBottom:'1px solid '+brand.border,whiteSpace:'nowrap'};
+    var td={padding:'10px 8px',fontSize:13};
+    return h('table',{style:{width:'100%',borderCollapse:'collapse'}},
+      h('thead',null,h('tr',null,
+        h('th',{style:Object.assign({},th,{textAlign:'left'})},showCity?'City':'Distance'),
+        showCity&&h('th',{style:Object.assign({},th,{textAlign:'left'})},'State'),
+        h('th',{style:Object.assign({},th,{textAlign:'right'})},'Visits'),
+        h('th',{style:Object.assign({},th,{textAlign:'right'})},'Unique Visitors'),
+        h('th',{style:Object.assign({},th,{textAlign:'right',width:160})},'Share')
+      )),
+      h('tbody',null,rows.map(function(r,i){
+        return h('tr',{key:i,style:{borderBottom:'1px solid '+brand.border}},
+          h('td',{style:Object.assign({},td,{textAlign:'left',color:brand.textPrimary,fontWeight:500})},showCity?r.city:r.band),
+          showCity&&h('td',{style:Object.assign({},td,{textAlign:'left',color:brand.textSecondary})},r.state),
+          h('td',{style:Object.assign({},td,{textAlign:'right',color:brand.textPrimary})},fmt.n(r.visits)),
+          h('td',{style:Object.assign({},td,{textAlign:'right',color:brand.textPrimary})},fmt.n(r.visitors)),
+          h('td',{style:Object.assign({},td,{textAlign:'right'})},
+            h('div',{style:{display:'flex',alignItems:'center',gap:8,justifyContent:'flex-end'}},
+              h('span',{style:{fontSize:12,color:brand.textSecondary,minWidth:38}},r.share+'%'),
+              h('div',{style:{width:80,height:5,background:brand.border,borderRadius:3}},
+                h('div',{style:{width:((r.share/max)*100)+'%',height:5,background:brand.purple,borderRadius:3}})
+              )
+            )
+          )
+        );
+      }))
+    );
+  }
+
+  function TabOverview(p){
+    var d=p.d;
+    return h('div',null,
+      h(Heading,null,'Visitation impact'),
+      h('div',{style:{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:12,marginBottom:12}},
+        h(K,{label:'Total visits',value:fmt.c(d.kpis.totalVisits),accent:true}),
+        h(K,{label:'Unique visitors',value:fmt.c(d.kpis.uniqueVisitors)}),
+        h(K,{label:'Repeat rate',value:d.kpis.repeatRate+'%'}),
+        h(K,{label:'Cost per visit',value:fmt.d(d.kpis.cpv)}),
+        h(K,{label:'Cost per visitor',value:fmt.d(d.kpis.cpuv)})
+      ),
+      h(Heading,null,'Visit frequency'),
+      h('div',{style:{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:12}},
+        h(K,{label:'Monthly frequency',value:fmt.freq(d.kpis.freqMonthly),sub:'Avg visits per unique visitor / month'}),
+        h(K,{label:'Quarterly frequency',value:fmt.freq(d.kpis.freqQuarterly),sub:'Avg visits per unique visitor / quarter'}),
+        h(K,{label:'Annual frequency',value:fmt.freq(d.kpis.freqAnnual),sub:'Avg visits per unique visitor / year',accent:true})
+      ),
+      h(Heading,null,'Campaign performance'),
+      h('div',{style:{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:12}},
+        h(K,{label:'Media spend',value:fmt.dc(d.kpis.mediaSpend)}),
+        h(K,{label:'Impressions',value:fmt.c(d.kpis.impressions)}),
+        h(K,{label:'Clicks',value:fmt.c(d.kpis.clicks)}),
+        h(K,{label:'CTR',value:fmt.pct(d.kpis.ctr)})
+      ),
+      h(Card,{title:'Weekly trends',subtitle:'Total visits and repeat visits by week'},
+        h(RC.ResponsiveContainer,{width:'100%',height:'100%'},
+          h(RC.LineChart,{data:d.weeklyTrends,margin:{top:10,right:20,left:0,bottom:0}},
+            h(RC.CartesianGrid,{stroke:brand.border,strokeDasharray:'3 3',vertical:false}),
+            h(RC.XAxis,{dataKey:'week',stroke:brand.textSecondary,fontSize:11}),
+            h(RC.YAxis,{yAxisId:'l',stroke:brand.textSecondary,fontSize:11,tickFormatter:fmt.c}),
+            h(RC.YAxis,{yAxisId:'r',orientation:'right',stroke:brand.textSecondary,fontSize:11,tickFormatter:fmt.c}),
+            h(RC.Legend,{wrapperStyle:{fontSize:12,color:brand.textSecondary}}),
+            h(RC.Line,{yAxisId:'l',type:'monotone',dataKey:'visits',name:'Total visits',stroke:brand.purple,strokeWidth:2.5,dot:{r:3,fill:brand.purple}}),
+            h(RC.Line,{yAxisId:'r',type:'monotone',dataKey:'repeat',name:'Repeat visits',stroke:brand.magenta,strokeWidth:2.5,dot:{r:3,fill:brand.magenta}})
+          )
+        )
+      )
+    );
+  }
+
+  function TabBehavior(p){
+    var d=p.d;
+    return h('div',null,
+      h(Heading,null,'Visitor type'),
+      h('div',{style:{display:'grid',gridTemplateColumns:'1fr 2fr',gap:12,marginBottom:12}},
+        h(Card,{title:'Repeat vs. new visitors',height:260},
+          h(RC.ResponsiveContainer,{width:'100%',height:'100%'},
+            h(RC.PieChart,null,
+              h(RC.Pie,{data:d.repeatVsNew,cx:'50%',cy:'50%',innerRadius:60,outerRadius:100,dataKey:'pct',nameKey:'label',label:function(e){return e.label+' '+e.pct+'%'},labelLine:false},
+                d.repeatVsNew.map(function(_,i){return h(RC.Cell,{key:i,fill:i===0?brand.purple:brand.magenta})})
+              )
+            )
+          )
+        ),
+        h(Card,{title:'Visits by day of week',height:260},
+          h(RC.ResponsiveContainer,{width:'100%',height:'100%'},
+            h(RC.BarChart,{data:d.visitsByDow,margin:{top:5,right:20,left:0,bottom:0}},
+              h(RC.CartesianGrid,{stroke:brand.border,strokeDasharray:'3 3',vertical:false}),
+              h(RC.XAxis,{dataKey:'day',stroke:brand.textSecondary,fontSize:11}),
+              h(RC.YAxis,{stroke:brand.textSecondary,fontSize:11,tickFormatter:fmt.c}),
+              h(RC.Bar,{dataKey:'v',fill:brand.purple,radius:[4,4,0,0]})
+            )
+          )
+        )
+      ),
+      h(Card,{title:'Visits by hour of day',subtitle:'Traffic pattern across a 24-hour window',height:260},
+        h(RC.ResponsiveContainer,{width:'100%',height:'100%'},
+          h(RC.BarChart,{data:d.visitsByHour,margin:{top:5,right:20,left:0,bottom:0}},
+            h(RC.CartesianGrid,{stroke:brand.border,strokeDasharray:'3 3',vertical:false}),
+            h(RC.XAxis,{dataKey:'hour',stroke:brand.textSecondary,fontSize:11}),
+            h(RC.YAxis,{stroke:brand.textSecondary,fontSize:11,tickFormatter:fmt.c}),
+            h(RC.Bar,{dataKey:'v',fill:brand.magenta,radius:[4,4,0,0]})
+          )
+        )
+      )
+    );
+  }
+
+  function TabAudience(p){
+    var d=p.d;
+    return h('div',null,
+      h(Heading,null,'Demographics'),
+      h('div',{style:{display:'grid',gridTemplateColumns:'3fr 2fr',gap:12}},
+        h(Card,{title:'Age distribution',height:280},
+          h(RC.ResponsiveContainer,{width:'100%',height:'100%'},
+            h(RC.BarChart,{data:d.demographics.age,layout:'vertical',margin:{top:5,right:30,left:10,bottom:0}},
+              h(RC.CartesianGrid,{stroke:brand.border,strokeDasharray:'3 3',horizontal:false}),
+              h(RC.XAxis,{type:'number',stroke:brand.textSecondary,fontSize:11,tickFormatter:function(v){return v+'%'}}),
+              h(RC.YAxis,{type:'category',dataKey:'b',stroke:brand.textSecondary,fontSize:11}),
+              h(RC.Bar,{dataKey:'p',fill:brand.purple,radius:[0,4,4,0]})
+            )
+          )
+        ),
+        h(Card,{title:'Gender split',height:280},
+          h(RC.ResponsiveContainer,{width:'100%',height:'100%'},
+            h(RC.PieChart,null,
+              h(RC.Pie,{data:d.demographics.gender,cx:'50%',cy:'50%',innerRadius:55,outerRadius:90,dataKey:'pct',nameKey:'label',label:function(e){return e.label+' '+e.pct+'%'},labelLine:false},
+                d.demographics.gender.map(function(_,i){return h(RC.Cell,{key:i,fill:i===0?brand.purple:brand.magenta})})
+              )
+            )
+          )
+        )
+      ),
+      h('div',{style:{marginTop:12}},
+        h(Card,{title:'Household income',height:240},
+          h(RC.ResponsiveContainer,{width:'100%',height:'100%'},
+            h(RC.BarChart,{data:d.demographics.income,margin:{top:5,right:20,left:0,bottom:0}},
+              h(RC.CartesianGrid,{stroke:brand.border,strokeDasharray:'3 3',vertical:false}),
+              h(RC.XAxis,{dataKey:'b',stroke:brand.textSecondary,fontSize:10}),
+              h(RC.YAxis,{stroke:brand.textSecondary,fontSize:11,tickFormatter:function(v){return v+'%'}}),
+              h(RC.Bar,{dataKey:'p',fill:brand.magenta,radius:[4,4,0,0]})
+            )
+          )
+        )
+      )
+    );
+  }
+
+  function TabOrigins(p){
+    var d=p.d;
+    return h('div',null,
+      h(Heading,null,'Origin markets'),
+      h(Card,{title:'Top 10 origin cities',subtitle:'Cities contributing the most visitors',height:420},
+        h(OriginsTable,{rows:d.topCities,showCity:true})
+      ),
+      h('div',{style:{marginTop:12}},
+        h(Card,{title:'Distance traveled',subtitle:'Visitor volume by distance from property',height:320},
+          h(OriginsTable,{rows:d.distanceBands,showCity:false})
+        )
+      )
+    );
+  }
+
+  function TabCompetitive(p){
+    var d=p.d;
+    var total=d.competitive.reduce(function(s,r){return s+r.visitors},0);
+    var pie=d.competitive.map(function(r){return Object.assign({},r,{pct:((r.visitors/total)*100).toFixed(1)})});
+    var compColors=[brand.magenta,brand.lightBlue,brand.purpleSecondary,'#4a8a6b','#6b6b8a'];
+    var colors=pie.map(function(r,i){return r.isClient?brand.purple:compColors[i-1]||'#6b6b8a'});
+    return h('div',null,
+      h(Heading,null,'Competitive intelligence'),
+      h('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}},
+        h(Card,{title:'Competitive intercept',subtitle:'Visitor share vs. competing tribal casinos',height:400},
+          h('div',{style:{display:'flex',alignItems:'center',height:'100%'}},
+            h('div',{style:{flex:1,height:340}},
+              h(RC.ResponsiveContainer,{width:'100%',height:'100%'},
+                h(RC.PieChart,null,
+                  h(RC.Pie,{
+                    data:pie,cx:'50%',cy:'50%',innerRadius:50,outerRadius:100,dataKey:'visitors',nameKey:'name',labelLine:false,
+                    label:function(e){
+                      var r=e.outerRadius+22,rad=Math.PI/180;
+                      var x=e.cx+r*Math.cos(-e.midAngle*rad),y=e.cy+r*Math.sin(-e.midAngle*rad);
+                      return h('text',{x:x,y:y,fill:brand.textPrimary,textAnchor:x>e.cx?'start':'end',dominantBaseline:'central',fontSize:10,fontWeight:500},e.pct+'%');
+                    }
+                  },
+                    pie.map(function(_,i){return h(RC.Cell,{key:i,fill:colors[i],stroke:brand.bgPage,strokeWidth:2})})
+                  )
+                )
+              )
+            ),
+            h('div',{style:{minWidth:155,paddingLeft:8}},
+              pie.map(function(r,i){
+                return h('div',{key:i,style:{display:'flex',alignItems:'center',gap:8,marginBottom:10}},
+                  h('div',{style:{width:10,height:10,borderRadius:2,background:colors[i],flexShrink:0}}),
+                  h('div',null,
+                    h('div',{style:{fontSize:11,color:brand.textPrimary,fontWeight:r.isClient?600:400}},r.name),
+                    h('div',{style:{fontSize:10,color:brand.textTertiary}},fmt.c(r.visitors)+' \u00b7 '+r.pct+'%')
+                  )
+                );
+              })
+            )
+          )
+        ),
+        h(Card,{title:'Cross-visitation',subtitle:'Players visiting competing properties',height:400},
+          h('div',{style:{display:'flex',flexDirection:'column',gap:10,paddingTop:4}},
+            d.crossVisit.map(function(cv,i){
+              return h('div',{key:i,style:{display:'flex',alignItems:'center',gap:8}},
+                h('div',{style:{width:114,color:brand.textPrimary,fontSize:11,flexShrink:0}},cv.from),
+                h('div',{style:{color:brand.textTertiary,fontSize:14,flexShrink:0}},'\u2192'),
+                h('div',{style:{width:114,color:brand.textPrimary,fontSize:11,flexShrink:0}},cv.to),
+                h('div',{style:{flex:1,height:20,background:brand.bgSurface,borderRadius:4,overflow:'hidden'}},
+                  h('div',{style:{width:cv.pct+'%',height:20,background:'linear-gradient(90deg,'+brand.purple+','+brand.magenta+')',borderRadius:4}})
+                ),
+                h('div',{style:{width:34,textAlign:'right',color:brand.textPrimary,fontWeight:500,fontSize:12}},cv.pct+'%')
+              );
+            })
+          )
+        )
+      )
+    );
+  }
+
+  function TabCampaign(p){
+    var d=p.d;
+    var tacticCPV=d.tactics.map(function(r){return {tactic:r.tactic,cpv:parseFloat((r.spend/r.visits).toFixed(2))}});
+    var tacticFreq=d.tactics.map(function(r){return {tactic:r.tactic,freq:parseFloat((r.visits/r.visitors).toFixed(1))}});
+    var cols=[['Tactic','left',false],['Visits','right',false],['Visitors','right',false],['Impressions','right',false],['Spend','right',false],['CPV','right',true],['CPUV','right',true],['Mo. Freq','right',true],['Qtr. Freq','right',true],['Ann. Freq','right',true]];
+    return h('div',null,
+      h(Heading,null,'Performance by tactic'),
+      h(Card,{title:'Tactic performance',subtitle:'Efficiency and frequency by media tactic',height:440},
+        h('div',{style:{overflowX:'auto'}},
+          h('table',{style:{width:'100%',fontSize:12,borderCollapse:'collapse',minWidth:820}},
+            h('thead',null,h('tr',{style:{borderBottom:'1px solid '+brand.border}},
+              cols.map(function(col){
+                return h('th',{key:col[0],style:{padding:'8px 6px',fontSize:10,color:col[2]?brand.magenta:brand.textSecondary,fontWeight:500,textTransform:'uppercase',letterSpacing:'0.05em',textAlign:col[1],whiteSpace:'nowrap'}},col[0]);
+              })
+            )),
+            h('tbody',null,d.tactics.map(function(r,i){
+              var cpv=r.spend/r.visits,cpuv=r.spend/r.visitors;
+              var moF=r.moV/r.moU,qtF=r.qtV/r.qtU,anF=r.visits/r.visitors;
+              return h('tr',{key:i,style:{borderBottom:'1px solid '+brand.border}},
+                h('td',{style:{padding:'10px 6px',color:brand.textPrimary,fontWeight:500}},r.tactic),
+                h('td',{style:{padding:'10px 6px',textAlign:'right',color:brand.textPrimary}},fmt.n(r.visits)),
+                h('td',{style:{padding:'10px 6px',textAlign:'right',color:brand.textPrimary}},fmt.n(r.visitors)),
+                h('td',{style:{padding:'10px 6px',textAlign:'right',color:brand.textSecondary}},fmt.c(r.impressions)),
+                h('td',{style:{padding:'10px 6px',textAlign:'right',color:brand.textSecondary}},fmt.dc(r.spend)),
+                h('td',{style:{padding:'10px 6px',textAlign:'right',color:brand.magenta,fontWeight:600}},fmt.d(cpv)),
+                h('td',{style:{padding:'10px 6px',textAlign:'right',color:brand.magenta,fontWeight:600}},fmt.d(cpuv)),
+                h('td',{style:{padding:'10px 6px',textAlign:'right',color:brand.magenta,fontWeight:600}},fmt.freq(moF)),
+                h('td',{style:{padding:'10px 6px',textAlign:'right',color:brand.magenta,fontWeight:600}},fmt.freq(qtF)),
+                h('td',{style:{padding:'10px 6px',textAlign:'right',color:brand.magenta,fontWeight:600}},fmt.freq(anF))
+              );
+            }))
+          )
+        )
+      ),
+      h('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginTop:12}},
+        h(Card,{title:'CPV by tactic',subtitle:'Cost per visit \u2014 lower is better',height:260},
+          h(RC.ResponsiveContainer,{width:'100%',height:'100%'},
+            h(RC.BarChart,{data:tacticCPV,margin:{top:5,right:20,left:0,bottom:0}},
+              h(RC.CartesianGrid,{stroke:brand.border,strokeDasharray:'3 3',vertical:false}),
+              h(RC.XAxis,{dataKey:'tactic',stroke:brand.textSecondary,fontSize:9}),
+              h(RC.YAxis,{stroke:brand.textSecondary,fontSize:11,tickFormatter:function(v){return '$'+v}}),
+              h(RC.Bar,{dataKey:'cpv',radius:[4,4,0,0]},
+                d.tactics.map(function(_,i){return h(RC.Cell,{key:i,fill:cc[i%cc.length]})})
+              )
+            )
+          )
+        ),
+        h(Card,{title:'Annual frequency by tactic',subtitle:'Avg annual visits per unique visitor',height:260},
+          h(RC.ResponsiveContainer,{width:'100%',height:'100%'},
+            h(RC.BarChart,{data:tacticFreq,margin:{top:5,right:20,left:0,bottom:0}},
+              h(RC.CartesianGrid,{stroke:brand.border,strokeDasharray:'3 3',vertical:false}),
+              h(RC.XAxis,{dataKey:'tactic',stroke:brand.textSecondary,fontSize:9}),
+              h(RC.YAxis,{stroke:brand.textSecondary,fontSize:11,tickFormatter:function(v){return v+'x'}}),
+              h(RC.Bar,{dataKey:'freq',radius:[4,4,0,0]},
+                d.tactics.map(function(_,i){return h(RC.Cell,{key:i,fill:cc[i%cc.length]})})
+              )
+            )
+          )
+        )
+      )
+    );
+  }
+
+  var TABS=[
+    {id:'overview',label:'Overview'},{id:'behavior',label:'Visitor Behavior'},
+    {id:'audience',label:'Audience'},{id:'origins',label:'Origins'},
+    {id:'competitive',label:'Competitive'},{id:'campaign',label:'Campaign Detail'}
+  ];
+
+  function App(){
+    var state=React.useState('overview');
+    var tab=state[0],setTab=state[1];
+    var now=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+    return h('div',{style:{background:brand.bgPage,minHeight:'100vh',padding:'24px 32px',color:brand.textPrimary}},
+      h('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'flex-start',paddingBottom:20}},
+        h('div',null,
+          h('div',{style:{fontSize:12,color:brand.magenta,fontWeight:600,letterSpacing:'0.08em',textTransform:'uppercase'}},'Q1Media Visitation Report'),
+          h('div',{style:{fontSize:24,fontWeight:600,color:brand.textPrimary,marginTop:4}},data.clientName),
+          h('div',{style:{fontSize:13,color:brand.textSecondary,marginTop:4}},data.reportingPeriod)
+        ),
+        h('div',{style:{display:'flex',gap:10,alignItems:'center'}},
+          h('span',{style:{fontSize:11,padding:'4px 10px',background:brand.bgTint,color:brand.magenta,border:'1px solid '+brand.magenta,borderRadius:20,fontWeight:500}},'Sample Data \u2014 For Illustration Only'),
+          h('button',{className:'no-print',onClick:function(){window.print()},style:{fontSize:12,padding:'7px 14px',background:brand.magenta,color:'#fff',border:'none',borderRadius:8,fontWeight:500}},'Export Report')
+        )
+      ),
+      h('div',{className:'no-print',style:{display:'flex',borderBottom:'1px solid '+brand.border,marginBottom:20}},
+        TABS.map(function(t){
+          return h('button',{key:t.id,onClick:function(){setTab(t.id)},style:{
+            padding:'12px 20px',fontSize:13,fontWeight:500,background:'transparent',border:'none',
+            borderBottom:tab===t.id?'3px solid '+brand.magenta:'3px solid transparent',
+            color:tab===t.id?brand.lightBlue:brand.textSecondary
+          }},t.label);
+        })
+      ),
+      tab==='overview'&&h(TabOverview,{d:data}),
+      tab==='behavior'&&h(TabBehavior,{d:data}),
+      tab==='audience'&&h(TabAudience,{d:data}),
+      tab==='origins'&&h(TabOrigins,{d:data}),
+      tab==='competitive'&&h(TabCompetitive,{d:data}),
+      tab==='campaign'&&h(TabCampaign,{d:data}),
+      h('div',{style:{marginTop:32,paddingTop:20,borderTop:'1px solid '+brand.border,display:'flex',justifyContent:'space-between',fontSize:11,color:brand.textTertiary}},
+        h('div',null,'Powered by Q1Media location intelligence'),
+        h('div',null,'Generated '+now)
+      )
+    );
+  }
+
+  window.addEventListener('load',function(){
+    ReactDOM.createRoot(document.getElementById('root')).render(h(App,null));
+  });
+})();
+</script>
+</body>
+</html>

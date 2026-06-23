@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visit Truckee-Tahoe — Q1 2025 Visitation Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Barlow', sans-serif;
+      background: #f5f2eb;
+      color: #1a2235;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    .hdr {
+      background: #1a2235;
+      color: #fff;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .hdr-left { display: flex; align-items: center; }
+    .logo-block { line-height: 1; }
+    .logo-visit { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 10px; letter-spacing: 2.5px; color: #3cc8c8; text-transform: uppercase; }
+    .logo-main  { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 26px; text-transform: uppercase; color: #fff; }
+    .logo-sub   { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 10px; letter-spacing: 2.5px; color: #8899aa; text-transform: uppercase; }
+    .hdr-divider { width: 1px; height: 54px; background: #2e3f55; margin: 0 20px; }
+    .hdr-meta   { font-size: 13px; color: #8899aa; line-height: 1.7; }
+    .hdr-meta strong { color: #fff; font-weight: 600; }
+    .hdr-right  { text-align: right; }
+    .hdr-invest { font-size: 11px; color: #8899aa; margin-bottom: 5px; }
+    .sample-badge {
+      display: inline-block;
+      background: #3cc8c8;
+      color: #0a1520;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 3px 10px;
+      border-radius: 3px;
+    }
+    .export-btn {
+      display: block;
+      margin-top: 8px;
+      background: #3cc8c8;
+      color: #0a1520;
+      border: none;
+      font-family: 'Barlow', sans-serif;
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 8px 18px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .export-btn:hover { opacity: 0.85; }
+
+    /* ── TAB NAV ── */
+    .tab-nav {
+      background: #1a2235;
+      border-bottom: 1px solid #2a3a4e;
+      padding: 0 32px;
+      display: flex;
+      gap: 2px;
+    }
+    .tab-btn {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #5a7080;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      padding: 13px 22px 10px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+    .tab-btn:hover  { color: #a0bbc8; }
+    .tab-btn.active { color: #3cc8c8; border-bottom-color: #3cc8c8; }
+
+    /* ── TAB PANELS ── */
+    .tab-panel         { display: none; }
+    .tab-panel.active  { display: block; }
+
+    /* ── BODY ── */
+    .body { padding: 24px 32px 36px; max-width: 1280px; margin: 0 auto; }
+
+    /* ── SECTION HEADING ── */
+    .sh {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 2.5px;
+      color: #1a2235;
+      margin: 28px 0 14px;
+      padding-bottom: 6px;
+      border-bottom: 2.5px solid #3cc8c8;
+    }
+    .sh:first-child { margin-top: 0; }
+
+    /* ── KPI GRIDS ── */
+    .krow { display: grid; gap: 12px; margin-bottom: 12px; }
+    .k4   { grid-template-columns: repeat(4, 1fr); }
+    .k3   { grid-template-columns: repeat(3, 1fr); }
+    .k2   { grid-template-columns: repeat(2, 1fr); }
+
+    .kc {
+      background: #fff;
+      border: 1px solid #e0dcd4;
+      border-radius: 10px;
+      padding: 16px 18px;
+    }
+    .kl {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.4px;
+      color: #7a8499;
+      margin-bottom: 6px;
+    }
+    .kv {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 30px;
+      font-weight: 900;
+      color: #1a2235;
+      line-height: 1;
+    }
+    .kv.teal    { color: #3cc8c8; }
+    .kv.magenta { color: #d4426e; }
+    .ks { font-size: 11px; color: #9aabb8; margin-top: 4px; }
+
+    /* ── CHART CARD GRID ── */
+    .crow { display: grid; gap: 16px; margin-bottom: 16px; }
+    .c1   { grid-template-columns: 1fr; }
+    .c2   { grid-template-columns: 1fr 1fr; }
+    .c3   { grid-template-columns: 1fr 1fr 1fr; }
+    .c21  { grid-template-columns: 2fr 1fr; }
+
+    .cc {
+      background: #fff;
+      border: 1px solid #e0dcd4;
+      border-radius: 10px;
+      padding: 18px 20px;
+    }
+    .ct {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #1a2235;
+      margin-bottom: 2px;
+    }
+    .cs { font-size: 11px; color: #9aabb8; margin-bottom: 14px; }
+
+    /* ── RANKED LIST ROWS ── */
+    .lr    { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; }
+    .ln    { width: 186px; flex-shrink: 0; font-size: 11px; font-weight: 600; color: #1a2235; }
+    .lbb   { flex: 1; height: 7px; background: #ede9df; border-radius: 4px; }
+    .lbf   { height: 7px; border-radius: 4px; }
+    .lv    { width: 48px; text-align: right; font-size: 11px; font-weight: 700; color: #3cc8c8; }
+    .lp    { width: 34px; text-align: right; font-size: 10px; color: #9aabb8; }
+
+    /* ── ORIGIN MARKETS ── */
+    .or    { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+    .on    { width: 28px; font-size: 11px; font-weight: 700; color: #3cc8c8; text-align: right; }
+    .ocity { width: 148px; flex-shrink: 0; font-size: 12px; font-weight: 600; color: #1a2235; }
+    .ostate { font-size: 10px; color: #9aabb8; }
+    .obb   { flex: 1; height: 7px; background: #ede9df; border-radius: 4px; }
+    .obf   { height: 7px; border-radius: 4px; }
+    .ov    { width: 46px; text-align: right; font-size: 11px; font-weight: 700; color: #1a2235; }
+    .op    { width: 34px; text-align: right; font-size: 10px; color: #9aabb8; }
+
+    /* ── CROSS-VISITATION MATRIX ── */
+    .mr    { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+    .mfrom { width: 130px; flex-shrink: 0; font-size: 11px; font-weight: 600; color: #1a2235; }
+    .mto   { flex: 1; font-size: 11px; color: #4a5568; }
+    .mbb   { height: 5px; background: #ede9df; border-radius: 3px; margin-top: 3px; }
+    .mbf   { height: 5px; border-radius: 3px; }
+    .mpct  { width: 28px; text-align: right; font-size: 11px; font-weight: 700; color: #1a2235; }
+
+    /* ── CHART LEGEND ── */
+    .legend      { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 10px; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #4a5568; }
+    .legend-swatch { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+    .legend-line   { width: 14px; height: 3px; border-radius: 2px; flex-shrink: 0; }
+
+    /* ── FOOTER ── */
+    .ftr {
+      background: #1a2235;
+      color: #7a8899;
+      font-size: 11px;
+      padding: 14px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .ftr-q1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: 14px;
+      letter-spacing: 1.5px;
+      color: #3cc8c8;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .ftr-right { text-align: right; line-height: 1.7; }
+
+    /* ── PRINT: show all panels ── */
+    @media print {
+      .tab-nav, .export-btn { display: none !important; }
+      .tab-panel { display: block !important; }
+      .hdr, .ftr, .kc, .cc { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .sh { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 960px) {
+      .k4  { grid-template-columns: repeat(2, 1fr); }
+      .c3  { grid-template-columns: 1fr 1fr; }
+      .c21 { grid-template-columns: 1fr; }
+      .c2  { grid-template-columns: 1fr; }
+      .hdr { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .hdr-right { text-align: left; }
+      .tab-nav { padding: 0 16px; }
+      .body { padding: 16px 20px 28px; }
+    }
+    @media (max-width: 560px) {
+      .k3, .k2 { grid-template-columns: 1fr; }
+      .c3      { grid-template-columns: 1fr; }
+      .body    { padding: 14px; }
+      .hdr     { padding: 14px 16px; }
+      .ftr     { flex-direction: column; gap: 8px; padding: 14px 16px; }
+      .ftr-right { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════ HEADER ══════════════ -->
+<header class="hdr">
+  <div class="hdr-left">
+    <div class="logo-block">
+      <div class="logo-visit">Visit</div>
+      <div class="logo-main">Truckee<br>Tahoe</div>
+      <div class="logo-sub">California</div>
+    </div>
+    <div class="hdr-divider"></div>
+    <div class="hdr-meta">
+      Digital Visitation Report<br>
+      <strong>Q1 2025 — January through March</strong>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="hdr-invest">Marketing Investment: $56,000 / month &nbsp;·&nbsp; $168,000 total</div>
+    <span class="sample-badge">Sample Data — For Illustration Only</span>
+    <button class="export-btn" onclick="window.print()">&#x2193;&nbsp; Export PDF</button>
+  </div>
+</header>
+
+<!-- ══════════════ TAB NAV ══════════════ -->
+<nav class="tab-nav" role="tablist">
+  <button class="tab-btn active" role="tab" aria-selected="true"  aria-controls="tab-summary" id="btn-summary" onclick="switchTab('summary')">Summary</button>
+  <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="tab-trends"  id="btn-trends"  onclick="switchTab('trends')">Trends</button>
+  <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="tab-demo"    id="btn-demo"    onclick="switchTab('demo')">Demographics</button>
+</nav>
+
+<!-- ══════════════ TAB: SUMMARY ══════════════ -->
+<div id="tab-summary" class="tab-panel active" role="tabpanel" aria-labelledby="btn-summary">
+  <main class="body">
+
+    <div class="sh">Campaign Performance</div>
+    <div class="krow k4">
+      <div class="kc"><div class="kl">Media Spend</div><div class="kv">$168,000</div><div class="ks">$56,000 / month</div></div>
+      <div class="kc"><div class="kl">Impressions</div><div class="kv">14.2M</div><div class="ks">4.7M avg / month</div></div>
+      <div class="kc"><div class="kl">Clicks</div><div class="kv">198,400</div><div class="ks">66,100 avg / month</div></div>
+      <div class="kc"><div class="kl">CTR</div><div class="kv">1.40%</div><div class="ks">Above 1.2% benchmark</div></div>
+    </div>
+
+    <div class="sh">Visitation Impact</div>
+    <div class="krow k3">
+      <div class="kc"><div class="kl">Total Visits</div><div class="kv teal">84,600</div><div class="ks">28,200 avg / month</div></div>
+      <div class="kc"><div class="kl">Unique Visitors</div><div class="kv">61,300</div><div class="ks">Deduplicated devices</div></div>
+      <div class="kc"><div class="kl">Cost Per Visit</div><div class="kv">$1.99</div><div class="ks">Spend ÷ total visits</div></div>
+    </div>
+    <div class="krow k3">
+      <div class="kc"><div class="kl">Hotel Visits</div><div class="kv teal">44,550</div><div class="ks">52.7% of total visits</div></div>
+      <div class="kc"><div class="kl">Cost Per Hotel Visit</div><div class="kv">$3.77</div><div class="ks">Spend ÷ hotel visits</div></div>
+      <div class="kc"><div class="kl">Cost Per Unique Visitor</div><div class="kv">$2.74</div><div class="ks">Spend ÷ unique visitors</div></div>
+    </div>
+
+    <div class="sh">Economic Impact</div>
+    <div class="krow k2">
+      <div class="kc"><div class="kl">Hotel Est. Revenue</div><div class="kv magenta">$8,420,000</div><div class="ks">Hotel visits × $189 ADR</div></div>
+      <div class="kc"><div class="kl">Total Economic Impact</div><div class="kv magenta">$21,150,000</div><div class="ks">Visits × $250 avg spend/visitor</div></div>
+    </div>
+
+    <div class="sh">Visitors by Category</div>
+    <div class="krow k3">
+      <div class="kc"><div class="kl">Hotel Visitors</div><div class="kv">44,550</div><div class="ks">52.7% of total visits</div></div>
+      <div class="kc"><div class="kl">Attraction Visitors</div><div class="kv">27,900</div><div class="ks">33.0% of total visits</div></div>
+      <div class="kc"><div class="kl">National Park Visitors</div><div class="kv">12,150</div><div class="ks">14.4% of total visits</div></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══════════════ TAB: TRENDS ══════════════ -->
+<div id="tab-trends" class="tab-panel" role="tabpanel" aria-labelledby="btn-trends">
+  <main class="body">
+
+    <div class="sh">Weekly Trends</div>
+    <div class="crow c1">
+      <div class="cc">
+        <div class="ct">City Visitors vs. Hotel Visits — Weekly</div>
+        <div class="cs">City visitors (left axis) · Hotel visits (right axis)</div>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-swatch" style="background:#1a2235;"></span>City Visitors</span>
+          <span class="legend-item"><span class="legend-line"   style="background:#3cc8c8;"></span>Hotel Visits</span>
+        </div>
+        <div style="position:relative;width:100%;height:260px;">
+          <canvas id="weeklyChart" role="img" aria-label="Dual-axis line chart of weekly city visitors and hotel visits over 13 weeks Q1 2025">City visitors peaked week 7 at 8,200; hotel visits peaked week 6 at 4,600.</canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="sh">Top Locations</div>
+    <div class="crow c2">
+      <div class="cc">
+        <div class="ct">Top Lodging Properties</div>
+        <div class="cs">Visits and share of total hotel traffic</div>
+        <div id="loc-list"></div>
+      </div>
+      <div class="cc">
+        <div class="ct">Key Attraction Locations</div>
+        <div class="cs">Visits and share of total attraction traffic</div>
+        <div id="attr-list"></div>
+      </div>
+    </div>
+
+    <div class="sh">Origin Markets</div>
+    <div class="crow c21">
+      <div class="cc">
+        <div class="ct">Top 10 Origin Cities</div>
+        <div class="cs">Visitor volume by home DMA — Q1 2025</div>
+        <div id="origin-list"></div>
+      </div>
+      <div class="cc">
+        <div class="ct">Drive vs. Fly Markets</div>
+        <div class="cs">Share by travel distance tier</div>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-swatch" style="background:#1a2235;"></span>Drive &lt;200mi</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:#3cc8c8;"></span>Drive 200–500mi</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:#d4426e;"></span>Fly 500mi+</span>
+        </div>
+        <div style="position:relative;width:100%;height:220px;">
+          <canvas id="travelChart" role="img" aria-label="Donut chart: Drive under 200 miles 48%, drive 200-500 miles 31%, fly 500+ miles 21%.">Drive &lt;200mi: 48%, Drive 200–500mi: 31%, Fly 500mi+: 21%.</canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="sh">Competitive &amp; Cross-Visitation</div>
+    <div class="crow c2">
+      <div class="cc">
+        <div class="ct">Competitive Intercept</div>
+        <div class="cs">Visitors also seen at competing destinations</div>
+        <div id="comp-list"></div>
+      </div>
+      <div class="cc">
+        <div class="ct">Cross-Visitation Matrix</div>
+        <div class="cs">Property-to-property visitor flow</div>
+        <div id="matrix-list"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══════════════ TAB: DEMOGRAPHICS ══════════════ -->
+<div id="tab-demo" class="tab-panel" role="tabpanel" aria-labelledby="btn-demo">
+  <main class="body">
+
+    <div class="sh">Demographics</div>
+    <div class="crow c3">
+      <div class="cc">
+        <div class="ct">Age Distribution</div>
+        <div class="cs">Visitor age segments</div>
+        <div style="position:relative;width:100%;height:260px;">
+          <canvas id="ageChart" role="img" aria-label="Horizontal bar chart of visitor age distribution. Ages 25-34 are the largest segment at 31%.">Ages 25–34: 31%, 35–44: 27%, 45–54: 18%, 18–24: 9%, 55–64: 10%, 65+: 5%.</canvas>
+        </div>
+      </div>
+      <div class="cc">
+        <div class="ct">Gender</div>
+        <div class="cs">Audience composition</div>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-swatch" style="background:#1a2235;"></span>Female 54%</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:#3cc8c8;"></span>Male 43%</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:#d4426e;"></span>Other 3%</span>
+        </div>
+        <div style="position:relative;width:100%;height:220px;">
+          <canvas id="genderChart" role="img" aria-label="Donut chart: Female 54%, Male 43%, Other 3%.">Female 54%, Male 43%, Other 3%.</canvas>
+        </div>
+      </div>
+      <div class="cc">
+        <div class="ct">Household Income</div>
+        <div class="cs">Visitor HHI segments</div>
+        <div style="position:relative;width:100%;height:260px;">
+          <canvas id="incomeChart" role="img" aria-label="Vertical bar chart of household income. Largest segment is $100K-$150K at 28%.">Under $50K: 6%, $50–75K: 11%, $75–100K: 19%, $100–150K: 28%, $150–200K: 21%, $200K+: 15%.</canvas>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<footer class="ftr">
+  <div>
+    <div class="ftr-q1">Q1Media</div>
+    <div>Powered by Q1Media Visitation Intelligence &nbsp;·&nbsp; visittruckeetahoe.com</div>
+  </div>
+  <div class="ftr-right">
+    Data sourced from mobile device location signals<br>
+    Generated April 2025 &nbsp;·&nbsp; For client use only
+  </div>
+</footer>
+
+<!-- ══════════════ SCRIPTS ══════════════ -->
+<script>
+  /* ── Tab switching ── */
+  function switchTab(id) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      b.classList.remove('active');
+      b.setAttribute('aria-selected', 'false');
+    });
+    document.getElementById('tab-' + id).classList.add('active');
+    const btn = document.getElementById('btn-' + id);
+    btn.classList.add('active');
+    btn.setAttribute('aria-selected', 'true');
+    // Trigger chart resize so canvases render correctly after becoming visible
+    setTimeout(() => Object.values(Chart.instances).forEach(c => c.resize()), 50);
+  }
+
+  const NAVY = '#1a2235', TEAL = '#3cc8c8', ROSE = '#d4426e', MUTED = '#9aabb8';
+
+  /* ── Weekly Trends ── */
+  new Chart(document.getElementById('weeklyChart'), {
+    type: 'line',
+    data: {
+      labels: ['W1','W2','W3','W4','W5','W6','W7','W8','W9','W10','W11','W12','W13'],
+      datasets: [
+        {
+          label: 'City Visitors',
+          data: [5200,5800,6400,7100,7600,7900,8200,7800,7200,6600,6100,5700,5400],
+          borderColor: NAVY, backgroundColor: 'transparent',
+          pointBackgroundColor: NAVY, pointRadius: 3,
+          borderWidth: 2, tension: 0.35, yAxisID: 'y'
+        },
+        {
+          label: 'Hotel Visits',
+          data: [2800,3100,3500,3900,4200,4600,4800,4500,4100,3700,3400,3100,2900],
+          borderColor: TEAL, backgroundColor: 'transparent',
+          pointBackgroundColor: TEAL, pointRadius: 3,
+          borderWidth: 2, borderDash: [5,3], tension: 0.35, yAxisID: 'y2'
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => c.dataset.label + ': ' + c.parsed.y.toLocaleString() } }
+      },
+      scales: {
+        x:  { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 11 }, color: MUTED, autoSkip: false, maxRotation: 0 } },
+        y:  { position: 'left',  grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 11 }, color: MUTED, callback: v => v >= 1000 ? (v/1000).toFixed(0)+'K' : v } },
+        y2: { position: 'right', grid: { display: false },             ticks: { font: { size: 11 }, color: TEAL,  callback: v => v >= 1000 ? (v/1000).toFixed(0)+'K' : v } }
+      }
+    }
+  });
+
+  /* ── Drive vs Fly ── */
+  new Chart(document.getElementById('travelChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Drive <200mi','Drive 200–500mi','Fly 500mi+'],
+      datasets: [{ data: [48,31,21], backgroundColor: [NAVY, TEAL, ROSE], borderWidth: 0, hoverOffset: 4 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '58%',
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.label + ': ' + c.parsed + '%' } } }
+    }
+  });
+
+  /* ── Age ── */
+  new Chart(document.getElementById('ageChart'), {
+    type: 'bar',
+    data: {
+      labels: ['18–24','25–34','35–44','45–54','55–64','65+'],
+      datasets: [{ label: 'Share', data: [9,31,27,18,10,5], backgroundColor: NAVY, borderRadius: 3 }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.x + '%' } } },
+      scales: {
+        x: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 11 }, color: MUTED, callback: v => v + '%' } },
+        y: { grid: { display: false }, ticks: { font: { size: 11 }, color: NAVY } }
+      }
+    }
+  });
+
+  /* ── Gender ── */
+  new Chart(document.getElementById('genderChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Female','Male','Other'],
+      datasets: [{ data: [54,43,3], backgroundColor: [NAVY, TEAL, ROSE], borderWidth: 0, hoverOffset: 4 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '62%',
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.label + ': ' + c.parsed + '%' } } }
+    }
+  });
+
+  /* ── Income ── */
+  new Chart(document.getElementById('incomeChart'), {
+    type: 'bar',
+    data: {
+      labels: ['<$50K','$50–75K','$75–100K','$100–150K','$150–200K','$200K+'],
+      datasets: [{ label: 'Share', data: [6,11,19,28,21,15], backgroundColor: [MUTED,MUTED,NAVY,TEAL,NAVY,MUTED], borderRadius: 3 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.y + '%' } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 }, color: NAVY, maxRotation: 35 } },
+        y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 11 }, color: MUTED, callback: v => v + '%' } }
+      }
+    }
+  });
+
+  /* ── Top Lodging Properties ── */
+  const hotels = [
+    { name: 'Ritz-Carlton Lake Tahoe',   visits: 9800, pct: 22 },
+    { name: 'Tahoe Mountain Lodge',       visits: 7600, pct: 17 },
+    { name: 'Northstar Lodge by Welk',    visits: 6900, pct: 15 },
+    { name: 'Donner Lake Village Resort', visits: 6100, pct: 14 },
+    { name: 'Truckee Hotel',              visits: 5200, pct: 12 },
+    { name: 'Tahoe Donner Lodge',         visits: 4400, pct: 10 }
+  ];
+  const locEl = document.getElementById('loc-list');
+  const maxH  = hotels[0].visits;
+  hotels.forEach(h => {
+    locEl.innerHTML += `<div class="lr">
+      <div class="ln">${h.name}</div>
+      <div class="lbb"><div class="lbf" style="width:${Math.round(h.visits/maxH*100)}%;background:${NAVY};"></div></div>
+      <div class="lv">${(h.visits/1000).toFixed(1)}K</div>
+      <div class="lp">${h.pct}%</div>
+    </div>`;
+  });
+
+  /* ── Key Attraction Locations ── */
+  const attractions = [
+    { name: 'Northstar California Resort', visits: 8400, pct: 30 },
+    { name: 'Donner Memorial State Park',  visits: 6200, pct: 22 },
+    { name: 'Palisades Tahoe',             visits: 5800, pct: 21 },
+    { name: 'Downtown Truckee',            visits: 4900, pct: 18 },
+    { name: 'Donner Lake',                 visits: 4100, pct: 15 },
+    { name: 'Lake Tahoe North Shore',      visits: 3800, pct: 14 }
+  ];
+  const attrEl = document.getElementById('attr-list');
+  const maxA   = attractions[0].visits;
+  attractions.forEach(a => {
+    attrEl.innerHTML += `<div class="lr">
+      <div class="ln">${a.name}</div>
+      <div class="lbb"><div class="lbf" style="width:${Math.round(a.visits/maxA*100)}%;background:${TEAL};"></div></div>
+      <div class="lv">${(a.visits/1000).toFixed(1)}K</div>
+      <div class="lp">${a.pct}%</div>
+    </div>`;
+  });
+
+  /* ── Origin Markets ── */
+  const origins = [
+    { rank:1,  city:'San Francisco', state:'CA', visits:18400, pct:21.7 },
+    { rank:2,  city:'Sacramento',    state:'CA', visits:14200, pct:16.8 },
+    { rank:3,  city:'San Jose',      state:'CA', visits: 9800, pct:11.6 },
+    { rank:4,  city:'Los Angeles',   state:'CA', visits: 8300, pct: 9.8 },
+    { rank:5,  city:'Oakland',       state:'CA', visits: 5600, pct: 6.6 },
+    { rank:6,  city:'Reno',          state:'NV', visits: 4900, pct: 5.8 },
+    { rank:7,  city:'Seattle',       state:'WA', visits: 3800, pct: 4.5 },
+    { rank:8,  city:'Portland',      state:'OR', visits: 3100, pct: 3.7 },
+    { rank:9,  city:'Phoenix',       state:'AZ', visits: 2700, pct: 3.2 },
+    { rank:10, city:'Las Vegas',     state:'NV', visits: 2400, pct: 2.8 }
+  ];
+  const origEl = document.getElementById('origin-list');
+  const maxO   = origins[0].visits;
+  origins.forEach(o => {
+    const barColor = o.rank <= 3 ? TEAL : o.rank <= 6 ? NAVY : MUTED;
+    origEl.innerHTML += `<div class="or">
+      <div class="on">#${o.rank}</div>
+      <div class="ocity">${o.city} <span class="ostate">${o.state}</span></div>
+      <div class="obb"><div class="obf" style="width:${Math.round(o.visits/maxO*100)}%;background:${barColor};"></div></div>
+      <div class="ov">${(o.visits/1000).toFixed(1)}K</div>
+      <div class="op">${o.pct.toFixed(1)}%</div>
+    </div>`;
+  });
+
+  /* ── Competitive Intercept ── */
+  const comps = [
+    { name:'South Lake Tahoe',    visits:14200, color:NAVY },
+    { name:'Mammoth Lakes',       visits: 9800, color:NAVY },
+    { name:'Big Bear Lake',       visits: 6700, color:TEAL },
+    { name:'Tahoe City',          visits: 5400, color:TEAL },
+    { name:'Incline Village, NV', visits: 3900, color:MUTED },
+    { name:'Kings Beach',         visits: 2800, color:MUTED }
+  ];
+  const compEl = document.getElementById('comp-list');
+  const maxC   = comps[0].visits;
+  comps.forEach(c => {
+    compEl.innerHTML += `<div class="lr">
+      <div class="ln">${c.name}</div>
+      <div class="lbb"><div class="lbf" style="width:${Math.round(c.visits/maxC*100)}%;background:${c.color};"></div></div>
+      <div class="lv">${(c.visits/1000).toFixed(1)}K</div>
+    </div>`;
+  });
+
+  /* ── Cross-Visitation Matrix ── */
+  const matrix = [
+    { from:'Ritz-Carlton',        to:'Tahoe Mtn Lodge',    pct:38 },
+    { from:'Northstar Lodge',     to:'Ritz-Carlton',        pct:29 },
+    { from:'Donner Lake Village', to:'Truckee Hotel',       pct:24 },
+    { from:'Truckee Hotel',       to:'Northstar Lodge',     pct:21 },
+    { from:'Tahoe Donner Lodge',  to:'Donner Lake Village', pct:17 }
+  ];
+  const matEl = document.getElementById('matrix-list');
+  matrix.forEach(m => {
+    matEl.innerHTML += `<div class="mr">
+      <div class="mfrom">${m.from}</div>
+      <span style="color:${TEAL};font-weight:700;font-size:14px;flex-shrink:0;">›</span>
+      <div class="mto">
+        <div>${m.to}</div>
+        <div class="mbb"><div class="mbf" style="width:${m.pct}%;background:${TEAL};"></div></div>
+      </div>
+      <div class="mpct">${m.pct}%</div>
+    </div>`;
+  });
+</script>
+</body>
+</html>

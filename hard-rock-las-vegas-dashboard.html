@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hard Rock Hotel &amp; Casino Las Vegas — Q1Media Visitation Report</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prop-types/15.8.1/prop-types.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.5.0/Recharts.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: #0a0a0f;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #f0f0ff;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #14141f; }
+  ::-webkit-scrollbar-thumb { background: #2e2e4a; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #404060; }
+  @media print {
+    .no-print { display: none !important; }
+    body { background: #ffffff; color: #000000; }
+    .tab-bar { display: none !important; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+(function() {
+'use strict';
+
+const { useState } = React;
+const {
+  BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer
+} = Recharts;
+
+// ─── BRAND TOKENS (Hard Rock override — dark casino theme) ───────────────────
+const brand = {
+  hrGold:          '#b8962e',
+  hrGoldLight:     '#d4af5a',
+  hrGoldDim:       '#8a6e1f',
+  hrRed:           '#c41e3a',
+  purple:          '#3d1d6b',
+  purpleSecondary: '#6b2fb3',
+  magenta:         '#c724b1',
+  lightBlue:       '#7dd3f7',
+  bgPage:          '#0a0a0f',
+  bgSurface:       '#14141f',
+  bgCard:          '#1a1a2a',
+  bgTint:          '#1e1428',
+  border:          '#252535',
+  textPrimary:     '#f0f0ff',
+  textSecondary:   '#8888aa',
+  textTertiary:    '#50506a',
+};
+
+// Chart color sequence
+const cc = [brand.hrGold, brand.hrRed, brand.lightBlue, brand.purpleSecondary, '#6b6b8a'];
+
+// ─── CLIENT DATA ─────────────────────────────────────────────────────────────
+const data = {
+  clientName:      'Hard Rock Hotel & Casino Las Vegas',
+  reportingPeriod: 'Jan 2027 – Dec 2027',
+  projected:       true,
+
+  kpis: {
+    totalVisits:     1840000,
+    uniqueVisitors:  412000,
+    repeatRate:      58.2,
+    cpv:             7.42,
+    cpuv:            33.18,
+    mediaSpend:      13650000,
+    impressions:     284000000,
+    clicks:          1920000,
+    ctr:             0.68,
+    freqMonthly:     3.2,
+    freqQuarterly:   8.9,
+    freqAnnual:      24.6,
+  },
+
+  weeklyTrends: [
+    { week: 'W1',  visits: 28400,  repeat: 16200 },
+    { week: 'W2',  visits: 31200,  repeat: 18100 },
+    { week: 'W3',  visits: 34800,  repeat: 20400 },
+    { week: 'W4',  visits: 33100,  repeat: 19200 },
+    { week: 'W5',  visits: 36900,  repeat: 21800 },
+    { week: 'W6',  visits: 41200,  repeat: 24600 },
+    { week: 'W7',  visits: 48600,  repeat: 29100 },
+    { week: 'W8',  visits: 52400,  repeat: 31800 },
+    { week: 'W9',  visits: 49100,  repeat: 29400 },
+    { week: 'W10', visits: 44200,  repeat: 26400 },
+    { week: 'W11', visits: 38600,  repeat: 22800 },
+    { week: 'W12', visits: 35100,  repeat: 20600 },
+  ],
+
+  repeatVsNew: [
+    { label: 'Repeat', pct: 58.2 },
+    { label: 'New',    pct: 41.8 },
+  ],
+
+  visitsByDow: [
+    { day: 'Mon', v: 198000 },
+    { day: 'Tue', v: 182000 },
+    { day: 'Wed', v: 214000 },
+    { day: 'Thu', v: 268000 },
+    { day: 'Fri', v: 412000 },
+    { day: 'Sat', v: 498000 },
+    { day: 'Sun', v: 368000 },
+  ],
+
+  visitsByHour: [
+    { hour: '12a', v: 64200  },
+    { hour: '2a',  v: 48100  },
+    { hour: '4a',  v: 28400  },
+    { hour: '6a',  v: 18200  },
+    { hour: '8a',  v: 42800  },
+    { hour: '10a', v: 88400  },
+    { hour: '12p', v: 148200 },
+    { hour: '2p',  v: 182400 },
+    { hour: '4p',  v: 214800 },
+    { hour: '6p',  v: 268200 },
+    { hour: '8p',  v: 312400 },
+    { hour: '10p', v: 284100 },
+  ],
+
+  demographics: {
+    age: [
+      { b: '21–34', p: 22 },
+      { b: '35–44', p: 26 },
+      { b: '45–54', p: 24 },
+      { b: '55–64', p: 18 },
+      { b: '65+',   p: 10 },
+    ],
+    gender: [
+      { label: 'Male',   pct: 54 },
+      { label: 'Female', pct: 46 },
+    ],
+    income: [
+      { b: '<$50K',      p: 8  },
+      { b: '$50–75K',    p: 16 },
+      { b: '$75–100K',   p: 22 },
+      { b: '$100–150K',  p: 28 },
+      { b: '$150K+',     p: 26 },
+    ],
+  },
+
+  topCities: [
+    { city: 'Los Angeles',   state: 'CA', visits: 184200, visitors: 48600, share: 11.8 },
+    { city: 'Las Vegas',     state: 'NV', visits: 162400, visitors: 42100, share: 10.4 },
+    { city: 'Phoenix',       state: 'AZ', visits:  98600, visitors: 26400, share:  6.3 },
+    { city: 'San Diego',     state: 'CA', visits:  84200, visitors: 22800, share:  5.4 },
+    { city: 'San Francisco', state: 'CA', visits:  72400, visitors: 19600, share:  4.6 },
+    { city: 'Seattle',       state: 'WA', visits:  64800, visitors: 17400, share:  4.2 },
+    { city: 'Denver',        state: 'CO', visits:  58200, visitors: 15800, share:  3.7 },
+    { city: 'Dallas',        state: 'TX', visits:  52400, visitors: 14200, share:  3.4 },
+    { city: 'Chicago',       state: 'IL', visits:  48600, visitors: 13200, share:  3.1 },
+    { city: 'New York',      state: 'NY', visits:  44800, visitors: 12100, share:  2.9 },
+  ],
+
+  distanceBands: [
+    { band: 'Under 2 miles', visits: 184200, visitors:  62400, share: 13.6 },
+    { band: '2–5 miles',     visits: 228400, visitors:  74800, share: 16.9 },
+    { band: '5–10 miles',    visits: 196800, visitors:  62200, share: 14.6 },
+    { band: '10–50 miles',   visits: 168400, visitors:  52400, share: 12.4 },
+    { band: '50–100 miles',  visits: 284600, visitors:  84200, share: 21.1 },
+    { band: '100+ miles',    visits: 378000, visitors:  96200, share: 28.0 },
+  ],
+
+  competitive: [
+    { name: 'Hard Rock LV',  visitors: 412000, isClient: true  },
+    { name: "Harrah's LV",   visitors: 318000, isClient: false },
+    { name: 'Paris Las Vegas', visitors: 284000, isClient: false },
+    { name: 'The LINQ',      visitors: 242000, isClient: false },
+    { name: 'Horseshoe LV',  visitors: 198000, isClient: false },
+    { name: 'MGM Grand',     visitors: 364000, isClient: false },
+  ],
+
+  crossVisit: [
+    { from: 'Hard Rock LV',   to: "Harrah's LV",    pct: 22 },
+    { from: 'Hard Rock LV',   to: 'Paris Las Vegas', pct: 18 },
+    { from: "Harrah's LV",    to: 'Hard Rock LV',    pct: 31 },
+    { from: 'Paris Las Vegas', to: 'Hard Rock LV',   pct: 26 },
+    { from: 'The LINQ',       to: 'Hard Rock LV',    pct: 28 },
+    { from: 'MGM Grand',      to: 'Hard Rock LV',    pct: 19 },
+  ],
+
+  // HR Network: Vegas at top, then US, then international by region
+  networkProperties: [
+    // Vegas anchor
+    { name: 'Hard Rock LV',           location: 'Las Vegas, NV',          country: 'USA',          region: 'US',           isVegas: true,  attributedVisits: 412000, uniqueVisitors: 412000, unityPct: 58.2, lift: null },
+    // United States
+    { name: 'Seminole HR Hollywood',  location: 'Hollywood, FL',          country: 'USA',          region: 'US',           isVegas: false, attributedVisits:  28400, uniqueVisitors:  22800, unityPct: 64.1, lift: 18.4 },
+    { name: 'HR Atlantic City',       location: 'Atlantic City, NJ',      country: 'USA',          region: 'US',           isVegas: false, attributedVisits:  24600, uniqueVisitors:  19200, unityPct: 61.8, lift: 14.2 },
+    { name: 'HR Tampa',               location: 'Tampa, FL',              country: 'USA',          region: 'US',           isVegas: false, attributedVisits:  18400, uniqueVisitors:  14600, unityPct: 59.4, lift: 12.8 },
+    { name: 'HR Bristol',             location: 'Bristol, VA',            country: 'USA',          region: 'US',           isVegas: false, attributedVisits:  14200, uniqueVisitors:  11400, unityPct: 56.2, lift:  9.4 },
+    { name: 'HR Northern Indiana',    location: 'Gary, IN',               country: 'USA',          region: 'US',           isVegas: false, attributedVisits:  12800, uniqueVisitors:  10200, unityPct: 54.8, lift:  8.6 },
+    { name: 'HR Tulsa',               location: 'Catoosa, OK',            country: 'USA',          region: 'US',           isVegas: false, attributedVisits:  11400, uniqueVisitors:   9100, unityPct: 52.4, lift:  7.2 },
+    { name: 'HR Sacramento',          location: 'Wheatland, CA',          country: 'USA',          region: 'US',           isVegas: false, attributedVisits:  10800, uniqueVisitors:   8600, unityPct: 51.8, lift:  6.8 },
+    { name: 'HR Biloxi',              location: 'Biloxi, MS',             country: 'USA',          region: 'US',           isVegas: false, attributedVisits:   9200, uniqueVisitors:   7400, unityPct: 49.6, lift:  6.1 },
+    { name: 'HR Sioux City',          location: 'Sioux City, IA',         country: 'USA',          region: 'US',           isVegas: false, attributedVisits:   7800, uniqueVisitors:   6200, unityPct: 48.4, lift:  5.4 },
+    { name: 'HR Cincinnati',          location: 'Cincinnati, OH',         country: 'USA',          region: 'US',           isVegas: false, attributedVisits:   7200, uniqueVisitors:   5800, unityPct: 47.2, lift:  4.8 },
+    { name: 'HR Deadwood',            location: 'Deadwood, SD',           country: 'USA',          region: 'US',           isVegas: false, attributedVisits:   5400, uniqueVisitors:   4400, unityPct: 44.8, lift:  3.6 },
+    { name: 'HR Lake Tahoe',          location: 'Stateline, NV',          country: 'USA',          region: 'US',           isVegas: false, attributedVisits:   4800, uniqueVisitors:   3900, unityPct: 43.2, lift:  3.2 },
+    { name: 'HR Daytona Beach',       location: 'Daytona Beach, FL',      country: 'USA',          region: 'US',           isVegas: false, attributedVisits:   4200, uniqueVisitors:   3400, unityPct: 42.6, lift:  2.8 },
+    // Americas — International
+    { name: 'HR Cancun',              location: 'Cancún, Mexico',         country: 'Mexico',       region: 'Americas',     isVegas: false, attributedVisits:   3800, uniqueVisitors:   3100, unityPct: 38.4, lift:  4.2 },
+    { name: 'HR Riviera Maya',        location: 'Playa del Carmen, MX',   country: 'Mexico',       region: 'Americas',     isVegas: false, attributedVisits:   3200, uniqueVisitors:   2600, unityPct: 36.8, lift:  3.8 },
+    { name: 'HR Punta Cana',          location: 'Punta Cana, DR',         country: 'Dom. Republic', region: 'Americas',    isVegas: false, attributedVisits:   2800, uniqueVisitors:   2300, unityPct: 34.2, lift:  3.1 },
+    { name: 'HR Vallarta',            location: 'Puerto Vallarta, MX',    country: 'Mexico',       region: 'Americas',     isVegas: false, attributedVisits:   2400, uniqueVisitors:   1900, unityPct: 32.6, lift:  2.6 },
+    { name: 'HR Guadalajara',         location: 'Guadalajara, MX',        country: 'Mexico',       region: 'Americas',     isVegas: false, attributedVisits:   1800, uniqueVisitors:   1500, unityPct: 30.4, lift:  2.1 },
+    // EMEA
+    { name: 'HR Marbella',            location: 'Marbella, Spain',        country: 'Spain',        region: 'EMEA',         isVegas: false, attributedVisits:   1600, uniqueVisitors:   1300, unityPct: 28.8, lift:  1.8 },
+    { name: 'HR Tenerife',            location: 'Tenerife, Spain',        country: 'Spain',        region: 'EMEA',         isVegas: false, attributedVisits:   1400, uniqueVisitors:   1100, unityPct: 27.4, lift:  1.6 },
+    { name: 'HR Madrid',              location: 'Madrid, Spain',          country: 'Spain',        region: 'EMEA',         isVegas: false, attributedVisits:   1200, uniqueVisitors:    980, unityPct: 26.2, lift:  1.4 },
+    { name: 'HR Malta',               location: "St George's Bay, Malta", country: 'Malta',        region: 'EMEA',         isVegas: false, attributedVisits:    980, uniqueVisitors:    800, unityPct: 24.8, lift:  1.2 },
+    // Asia Pacific
+    { name: 'HR Bali',                location: 'Bali, Indonesia',        country: 'Indonesia',    region: 'Asia Pacific', isVegas: false, attributedVisits:   1400, uniqueVisitors:   1100, unityPct: 22.4, lift:  1.5 },
+    { name: 'HR Goa',                 location: 'Goa, India',             country: 'India',        region: 'Asia Pacific', isVegas: false, attributedVisits:   1100, uniqueVisitors:    890, unityPct: 20.8, lift:  1.2 },
+    { name: 'HR Penang',              location: 'Penang, Malaysia',       country: 'Malaysia',     region: 'Asia Pacific', isVegas: false, attributedVisits:    920, uniqueVisitors:    740, unityPct: 19.6, lift:  1.0 },
+    { name: 'HR Pattaya',             location: 'Pattaya, Thailand',      country: 'Thailand',     region: 'Asia Pacific', isVegas: false, attributedVisits:    840, uniqueVisitors:    680, unityPct: 18.4, lift:  0.9 },
+    { name: 'HR Maldives',            location: 'Maldives',               country: 'Maldives',     region: 'Asia Pacific', isVegas: false, attributedVisits:    620, uniqueVisitors:    500, unityPct: 16.2, lift:  0.7 },
+  ],
+
+  unityVsNew: [
+    { label: 'Unity Members', pct: 58.2 },
+    { label: 'New Visitors',  pct: 41.8 },
+  ],
+  unityKpis: {
+    unityVisitors: 239784,
+    newVisitors:   172216,
+    unityPct:      58.2,
+  },
+
+  tactics: [
+    { tactic: 'PreRoll Video',        visits: 442000, visitors: 148000, impressions: 82400000, spend: 3840000, moV: 36833, moU: 12300, qtV: 110500, qtU: 31200 },
+    { tactic: 'cTV / OTT',            visits: 368000, visitors: 124000, impressions: 64200000, spend: 3280000, moV: 30667, moU: 10400, qtV:  92000, qtU: 26800 },
+    { tactic: 'PMAX',                 visits: 318000, visitors: 108000, impressions: 54800000, spend: 2840000, moV: 26500, moU:  9000, qtV:  79500, qtU: 23400 },
+    { tactic: 'Paid Social',          visits: 284000, visitors:  96000, impressions: 48200000, spend: 2180000, moV: 23667, moU:  8000, qtV:  71000, qtU: 20600 },
+    { tactic: 'Programmatic Display', visits: 196000, visitors:  68000, impressions: 34400000, spend: 1510000, moV: 16333, moU:  5700, qtV:  49000, qtU: 14800 },
+  ],
+};
+
+// ─── FORMATTERS ──────────────────────────────────────────────────────────────
+const fmt = {
+  n:    v => v.toLocaleString('en-US'),
+  c:    v => { if (v >= 1e6) return (v / 1e6).toFixed(1) + 'M'; if (v >= 1e3) return (v / 1e3).toFixed(0) + 'K'; return v.toString(); },
+  $c:   v => { if (v >= 1e6) return '$' + (v / 1e6).toFixed(1) + 'M'; if (v >= 1e3) return '$' + (v / 1e3).toFixed(0) + 'K'; return '$' + v.toFixed(2); },
+  pct:  v => v.toFixed(2) + '%',
+  d:    v => '$' + v.toFixed(2),
+  freq: v => v.toFixed(1) + 'x',
+};
+
+// ─── SHARED COMPONENTS ───────────────────────────────────────────────────────
+
+// KPI card — accent=magenta, gold=hrGold
+const K = ({ label, value, sub, accent, gold }) =>
+  React.createElement('div', {
+    style: {
+      background: brand.bgCard,
+      border: `1px solid ${brand.border}`,
+      borderRadius: 12,
+      padding: '16px 18px',
+      minHeight: 96,
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between',
+    }
+  },
+    React.createElement('div', { style: { fontSize: 11, fontWeight: 500, color: brand.textSecondary, textTransform: 'uppercase', letterSpacing: '0.06em' } }, label),
+    React.createElement('div', null,
+      React.createElement('div', { style: { fontSize: 26, fontWeight: 600, color: gold ? brand.hrGold : accent ? brand.magenta : brand.textPrimary, lineHeight: 1.1 } }, value),
+      sub && React.createElement('div', { style: { fontSize: 11, color: brand.textTertiary, marginTop: 3 } }, sub)
+    )
+  );
+
+// Chart wrapper card
+const Card = ({ title, subtitle, children, height = 280 }) =>
+  React.createElement('div', {
+    style: { background: brand.bgCard, border: `1px solid ${brand.border}`, borderRadius: 12, padding: 18 }
+  },
+    React.createElement('div', { style: { marginBottom: 14 } },
+      React.createElement('div', { style: { fontSize: 14, fontWeight: 600, color: brand.textPrimary } }, title),
+      subtitle && React.createElement('div', { style: { fontSize: 12, color: brand.textSecondary, marginTop: 2 } }, subtitle)
+    ),
+    React.createElement('div', { style: { width: '100%', height } }, children)
+  );
+
+// Section heading with gold underline
+const Heading = ({ children }) =>
+  React.createElement('div', { style: { margin: '24px 0 12px' } },
+    React.createElement('div', {
+      style: {
+        fontSize: 16,
+        fontWeight: 600,
+        color: brand.textPrimary,
+        display: 'inline-block',
+        paddingBottom: 4,
+        borderBottom: `3px solid ${brand.hrGold}`,
+      }
+    }, children)
+  );
+
+// Reusable origins/distance table
+const OriginsTable = ({ rows, showCity }) => {
+  const max = Math.max(...rows.map(r => r.share));
+  const th = { padding: '8px 8px', fontSize: 11, color: brand.textSecondary, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: `1px solid ${brand.border}`, whiteSpace: 'nowrap' };
+  const td = { padding: '10px 8px', fontSize: 13 };
+  return React.createElement('table', { style: { width: '100%', borderCollapse: 'collapse' } },
+    React.createElement('thead', null,
+      React.createElement('tr', null,
+        React.createElement('th', { style: { ...th, textAlign: 'left' } }, showCity ? 'City' : 'Distance'),
+        showCity && React.createElement('th', { style: { ...th, textAlign: 'left' } }, 'State'),
+        React.createElement('th', { style: { ...th, textAlign: 'right' } }, 'Visits'),
+        React.createElement('th', { style: { ...th, textAlign: 'right' } }, 'Unique Visitors'),
+        React.createElement('th', { style: { ...th, textAlign: 'right', width: 160 } }, 'Share')
+      )
+    ),
+    React.createElement('tbody', null,
+      rows.map((r, i) =>
+        React.createElement('tr', { key: i, style: { borderBottom: `1px solid ${brand.border}` } },
+          React.createElement('td', { style: { ...td, textAlign: 'left', color: brand.textPrimary, fontWeight: 500 } }, showCity ? r.city : r.band),
+          showCity && React.createElement('td', { style: { ...td, textAlign: 'left', color: brand.textSecondary } }, r.state),
+          React.createElement('td', { style: { ...td, textAlign: 'right', color: brand.textPrimary } }, fmt.n(r.visits)),
+          React.createElement('td', { style: { ...td, textAlign: 'right', color: brand.textPrimary } }, fmt.n(r.visitors)),
+          React.createElement('td', { style: { ...td, textAlign: 'right' } },
+            React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'flex-end' } },
+              React.createElement('span', { style: { fontSize: 12, color: brand.textSecondary, minWidth: 38 } }, r.share + '%'),
+              React.createElement('div', { style: { width: 80, height: 5, background: brand.border, borderRadius: 3 } },
+                React.createElement('div', { style: { width: `${(r.share / max) * 100}%`, height: 5, background: brand.hrGold, borderRadius: 3 } })
+              )
+            )
+          )
+        )
+      )
+    )
+  );
+};
+
+// ─── TAB: OVERVIEW ───────────────────────────────────────────────────────────
+const TabOverview = ({ d }) =>
+  React.createElement(React.Fragment, null,
+    React.createElement(Heading, null, 'Visitation impact'),
+    React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 12, marginBottom: 12 } },
+      React.createElement(K, { label: 'Total visits',     value: fmt.c(d.kpis.totalVisits),    gold: true }),
+      React.createElement(K, { label: 'Unique visitors',  value: fmt.c(d.kpis.uniqueVisitors) }),
+      React.createElement(K, { label: 'Repeat rate',      value: d.kpis.repeatRate + '%' }),
+      React.createElement(K, { label: 'Cost per visit',   value: fmt.d(d.kpis.cpv) }),
+      React.createElement(K, { label: 'Cost per visitor', value: fmt.d(d.kpis.cpuv) })
+    ),
+    React.createElement(Heading, null, 'Visit frequency'),
+    React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, marginBottom: 12 } },
+      React.createElement(K, { label: 'Monthly frequency',   value: fmt.freq(d.kpis.freqMonthly),   sub: 'Avg visits per unique visitor / month' }),
+      React.createElement(K, { label: 'Quarterly frequency', value: fmt.freq(d.kpis.freqQuarterly), sub: 'Avg visits per unique visitor / quarter' }),
+      React.createElement(K, { label: 'Annual frequency',    value: fmt.freq(d.kpis.freqAnnual),    sub: 'Avg visits per unique visitor / year', gold: true })
+    ),
+    React.createElement(Heading, null, 'Campaign performance'),
+    React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 12 } },
+      React.createElement(K, { label: 'Media spend',  value: fmt.$c(d.kpis.mediaSpend) }),
+      React.createElement(K, { label: 'Impressions',  value: fmt.c(d.kpis.impressions) }),
+      React.createElement(K, { label: 'Clicks',       value: fmt.c(d.kpis.clicks) }),
+      React.createElement(K, { label: 'CTR',          value: fmt.pct(d.kpis.ctr) })
+    ),
+    React.createElement(Card, { title: 'Weekly trends', subtitle: 'Total visits and repeat visits by week' },
+      React.createElement(ResponsiveContainer, { width: '100%', height: '100%' },
+        React.createElement(LineChart, { data: d.weeklyTrends, margin: { top: 10, right: 20, left: 0, bottom: 0 } },
+          React.createElement(CartesianGrid, { stroke: brand.border, strokeDasharray: '3 3', vertical: false }),
+          React.createElement(XAxis, { dataKey: 'week', stroke: brand.textSecondary, fontSize: 11 }),
+          React.createElement(YAxis, { yAxisId: 'l', stroke: brand.textSecondary, fontSize: 11, tickFormatter: fmt.c }),
+          React.createElement(YAxis, { yAxisId: 'r', orientation: 'right', stroke: brand.textSecondary, fontSize: 11, tickFormatter: fmt.c }),
+          React.createElement(Legend, { wrapperStyle: { fontSize: 12, color: brand.textSecondary } }),
+          React.createElement(Line, { yAxisId: 'l', type: 'monotone', dataKey: 'visits', name: 'Total visits',  stroke: brand.hrGold, strokeWidth: 2.5, dot: { r: 3, fill: brand.hrGold } }),
+          React.createElement(Line, { yAxisId: 'r', type: 'monotone', dataKey: 'repeat', name: 'Repeat visits', stroke: brand.hrRed,  strokeWidth: 2.5, dot: { r: 3, fill: brand.hrRed } })
+        )
+      )
+    )
+  );
+
+// ─── TAB: VISITOR BEHAVIOR ───────────────────────────────────────────────────
+const TabBehavior = ({ d }) =>
+  React.createElement(React.Fragment, null,
+    React.createElement(Heading, null, 'Visitor type'),
+    React.createElement('div', { style: { display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 12, marginBottom: 12 } },
+      React.createElement(Card, { title: 'Repeat vs. new visitors', height: 260 },
+        React.createElement(ResponsiveContainer, { width: '100%', height: '100%' },
+          React.createElement(PieChart, null,
+            React.createElement(Pie, {
+              data: d.repeatVsNew, cx: '50%', cy: '50%', innerRadius: 60, outerRadius: 100,
+              dataKey: 'pct', nameKey: 'label', label: e => `${e.label} ${e.pct}%`, labelLine: false,
+            },
+              d.repeatVsNew.map((_, i) => React.createElement(Cell, { key: i, fill: i === 0 ? brand.hrGold : brand.hrRed }))
+            )
+          )
+        )
+      ),
+      React.createElement(Card, { title: 'Visits by day of week', height: 260 },
+        React.createElement(ResponsiveContainer, { width: '100%', height: '100%' },
+          React.createElement(BarChart, { data: d.visitsByDow, margin: { top: 5, right: 20, left: 0, bottom: 0 } },
+            React.createElement(CartesianGrid, { stroke: brand.border, strokeDasharray: '3 3', vertical: false }),
+            React.createElement(XAxis, { dataKey: 'day', stroke: brand.textSecondary, fontSize: 11 }),
+            React.createElement(YAxis, { stroke: brand.textSecondary, fontSize: 11, tickFormatter: fmt.c }),
+            React.createElement(Bar, { dataKey: 'v', fill: brand.hrGold, radius: [4, 4, 0, 0] })
+          )
+        )
+      )
+    ),
+    React.createElement(Card, { title: 'Visits by hour of day', subtitle: 'Traffic pattern across a 24-hour window', height: 260 },
+      React.createElement(ResponsiveContainer, { width: '100%', height: '100%' },
+        React.createElement(BarChart, { data: d.visitsByHour, margin: { top: 5, right: 20, left: 0, bottom: 0 } },
+          React.createElement(CartesianGrid, { stroke: brand.border, strokeDasharray: '3 3', vertical: false }),
+          React.createElement(XAxis, { dataKey: 'hour', stroke: brand.textSecondary, fontSize: 11 }),
+          React.createElement(YAxis, { stroke: brand.textSecondary, fontSize: 11, tickFormatter: fmt.c }),
+          React.createElement(Bar, { dataKey: 'v', fill: brand.hrRed, radius: [4, 4, 0, 0] })
+        )
+      )
+    )
+  );
+
+// ─── TAB: AUDIENCE ───────────────────────────────────────────────────────────
+const TabAudience = ({ d }) =>
+  React.createElement(React.Fragment, null,
+    React.createElement(Heading, null, 'Demographics'),
+    React.createElement('div', { style: { display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 12 } },
+      React.createElement(Card, { title: 'Age distribution', height: 280 },
+        React.createElement(ResponsiveContainer, { width: '100%', height: '100%' },
+          React.createElement(BarChart, { data: d.demographics.age, layout: 'vertical', margin: { top: 5, right: 30, left: 10, bottom: 0 } },
+            React.createElement(CartesianGrid, { stroke: brand.border, strokeDasharray: '3 3', horizontal: false }),
+            React.createElement(XAxis, { type: 'number', stroke: brand.textSecondary, fontSize: 11, tickFormatter: v => v + '%' }),
+            React.createElement(YAxis, { type: 'category', dataKey: 'b', stroke: brand.textSecondary, fontSize: 11 }),
+            React.createElement(Bar, { dataKey: 'p', fill: brand.hrGold, radius: [0, 4, 4, 0] })
+          )
+        )
+      ),
+      React.createElement(Card, { title: 'Gender split', height: 280 },
+        React.createElement(ResponsiveContainer, { width: '100%', height: '100%' },
+          React.createElement(PieChart, null,
+            React.createElement(Pie, {
+              data: d.demographics.gender, cx: '50%', cy: '50%', innerRadius: 55, outerRadius: 90,
+              dataKey: 'pct', nameKey: 'label', label: e => `${e.label} ${e.pct}%`, labelLine: false,
+            },
+              d.demographics.gender.map((_, i) => React.createElement(Cell, { key: i, fill: i === 0 ? brand.hrGold : brand.hrRed }))
+            )
+          )
+        )
+      )
+    ),
+    React.createElement('div', { style: { marginTop: 12 } },
+      React.createElement(Card, { title: 'Household income', height: 240 },
+        React.createElement(ResponsiveContainer, { width: '100%', height: '100%' },
+          React.createElement(BarChart, { data: d.demographics.income, margin: { top: 5, right: 20, left: 0, bottom: 0 } },
+            React.createElement(CartesianGrid, { stroke: brand.border, strokeDasharray: '3 3', vertical: false }),
+            React.createElement(XAxis, { dataKey: 'b', stroke: brand.textSecondary, fontSize: 10 }),
+            React.createElement(YAxis, { stroke: brand.textSecondary, fontSize: 11, tickFormatter: v => v + '%' }),
+            React.createElement(Bar, { dataKey: 'p', fill: brand.hrRed, radius: [4, 4, 0, 0] })
+          )
+        )
+      )
+    )
+  );
+
+// ─── TAB: ORIGINS ────────────────────────────────────────────────────────────
+const TabOrigins = ({ d }) =>
+  React.createElement(React.Fragment, null,
+    React.createElement(Heading, null, 'Origin markets'),
+    React.createElement(Card, { title: 'Top 10 origin cities', subtitle: 'Cities contributing the most visitors', height: 400 },
+      React.createElement(OriginsTable, { rows: d.topCities, showCity: true })
+    ),
+    React.createElement('div', { style: { marginTop: 12 } },
+      React.createElement(Card, { title: 'Distance traveled', subtitle: 'Visitor volume by distance from property', height: 320 },
+        React.createElement(OriginsTable, { rows: d.distanceBands, showCity: false })
+      )
+    )
+  );
+
+// ─── TAB: COMPETITIVE ────────────────────────────────────────────────────────
+const TabCompetitive = ({ d }) => {
+  const total  = d.competitive.reduce((s, r) => s + r.visitors, 0);
+  const pie    = d.competitive.map(r => ({ ...r, pct: ((r.visitors / total) * 100).toFixed(1) }));
+  const colors = pie.map((r, i) => r.isClient
+    ? brand.hrGold
+    : [brand.hrRed, brand.lightBlue, brand.purpleSecondary, '#6b6b8a', '#888888'][i - 1] || '#6b6b8a'
+  );
+
+  return React.createElement(React.Fragment, null,
+    React.createElement(Heading, null, 'Competitive intelligence — Las Vegas Strip'),
+    React.createElement('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 } },
+
+      // Donut + legend
+      React.createElement(Card, { title: 'Competitive intercept', subtitle: 'Visitor share vs. mid-range Strip casinos', height: 360 },
+        React.createElement('div', { style: { display: 'flex', alignItems: 'center', height: '100%' } },
+          React.createElement('div', { style: { flex: 1, height: 300 } },
+            React.createElement(ResponsiveContainer, { width: '100%', height: '100%' },
+              React.createElement(PieChart, null,
+                React.createElement(Pie, {
+                  data: pie, cx: '50%', cy: '50%', innerRadius: 55, outerRadius: 100,
+                  dataKey: 'visitors', nameKey: 'name', labelLine: false,
+                  label: ({ cx, cy, midAngle, outerRadius, pct }) => {
+                    const r   = outerRadius + 20;
+                    const rad = Math.PI / 180;
+                    const x   = cx + r * Math.cos(-midAngle * rad);
+                    const y   = cy + r * Math.sin(-midAngle * rad);
+                    return React.createElement('text', {
+                      x, y,
+                      fill: brand.textPrimary,
+                      textAnchor: x > cx ? 'start' : 'end',
+                      dominantBaseline: 'central',
+                      fontSize: 11,
+                      fontWeight: 500,
+                    }, pct + '%');
+                  },
+                },
+                  pie.map((_, i) => React.createElement(Cell, { key: i, fill: colors[i], stroke: brand.bgPage, strokeWidth: 2 }))
+                )
+              )
+            )
+          ),
+          React.createElement('div', { style: { minWidth: 145, paddingLeft: 8 } },
+            pie.map((r, i) =>
+              React.createElement('div', { key: i, style: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } },
+                React.createElement('div', { style: { width: 10, height: 10, borderRadius: 2, background: colors[i], flexShrink: 0 } }),
+                React.createElement('div', null,
+                  React.createElement('div', { style: { fontSize: 12, color: brand.textPrimary, fontWeight: r.isClient ? 600 : 400 } }, r.name),
+                  React.createElement('div', { style: { fontSize: 11, color: brand.textTertiary } }, fmt.c(r.visitors) + ' · ' + r.pct + '%')
+                )
+              )
+            )
+          )
+        )
+      ),
+
+      // Cross-visitation
+      React.createElement(Card, { title: 'Cross-visitation', subtitle: 'Players visiting competing Strip properties', height: 360 },
+        React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 4 } },
+          d.crossVisit.map((cv, i) =>
+            React.createElement('div', { key: i, style: { display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 } },
+              React.createElement('div', { style: { width: 112, color: brand.textPrimary, fontWeight: 500, fontSize: 11, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }, cv.from),
+              React.createElement('div', { style: { color: brand.textTertiary, fontSize: 14, flexShrink: 0 } }, '\u2192'),
+              React.createElement('div', { style: { width: 112, color: brand.textSecondary, fontSize: 11, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }, cv.to),
+              React.createElement('div', { style: { flex: 1, height: 18, background: brand.bgSurface, borderRadius: 4, overflow: 'hidden', minWidth: 40 } },
+                React.createElement('div', { style: { width: `${cv.pct}%`, height: 18, background: `linear-gradient(90deg,${brand.hrGold},${brand.hrRed})`, borderRadius: 4 } })
+              ),
+              React.createElement('div', { style: { width: 34, textAlign: 'right', color: brand.textPrimary, fontWeight: 600, fontSize: 12, flexShrink: 0 } }, cv.pct + '%')
+            )
+          )
+        )
+      )
+    )
+  );
+};
+
+// ─── TAB: HR NETWORK ─────────────────────────────────────────────────────────
+const TabNetwork = ({ d }) => {
+  const vegasRow  = d.networkProperties.find(p => p.isVegas);
+  const usRows    = d.networkProperties.filter(p => p.region === 'US' && !p.isVegas);
+  const intlRows  = d.networkProperties.filter(p => p.region !== 'US');
+  const topChart  = d.networkProperties
+    .filter(p => !p.isVegas)
+    .sort((a, b) => b.attributedVisits - a.attributedVisits)
+    .slice(0, 12);
+  const maxV      = Math.max(...d.networkProperties.filter(p => !p.isVegas).map(p => p.attributedVisits));
+  const totalNet  = d.networkProperties.reduce((s, p) => s + p.attributedVisits, 0);
+  const liftCount = d.networkProperties.filter(p => !p.isVegas && p.lift > 0).length;
+
+  const th  = { padding: '8px 8px', fontSize: 11, color: brand.textSecondary, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: `1px solid ${brand.border}`, whiteSpace: 'nowrap', textAlign: 'right' };
+  const thL = { ...th, textAlign: 'left' };
+  const td  = { padding: '9px 8px', fontSize: 12, textAlign: 'right', color: brand.textPrimary };
+  const tdL = { ...td, textAlign: 'left' };
+
+  const SectionLabel = ({ label }) =>
+    React.createElement('tr', null,
+      React.createElement('td', {
+        colSpan: 6,
+        style: {
+          padding: '10px 8px 6px',
+          fontSize: 11,
+          fontWeight: 600,
+          color: brand.hrGold,
+          textTransform: 'uppercase',
+          letterSpacing: '0.06em',
+          borderBottom: `1px solid ${brand.border}`,
+          borderTop: `1px solid ${brand.border}`,
+        }
+      }, label)
+    );
+
+  const PropertyRow = ({ r, isVegas }) =>
+    React.createElement('tr', {
+      style: {
+        borderBottom: `1px solid ${brand.border}`,
+        background: isVegas ? brand.bgTint : 'transparent',
+      }
+    },
+      React.createElement('td', { style: { ...tdL, fontWeight: isVegas ? 700 : 500, color: isVegas ? brand.hrGold : brand.textPrimary } },
+        r.name + (isVegas ? ' \u2605' : '')
+      ),
+      React.createElement('td', { style: { ...tdL, color: brand.textSecondary, fontSize: 11 } }, r.location),
+      React.createElement('td', { style: { ...td, color: isVegas ? brand.hrGold : brand.textPrimary, fontWeight: isVegas ? 700 : 400 } }, fmt.n(r.attributedVisits)),
+      React.createElement('td', { style: td }, fmt.n(r.uniqueVisitors)),
+      React.createElement('td', { style: { ...td, color: brand.hrGold, fontWeight: 600 } }, r.unityPct + '%'),
+      isVegas
+        ? React.createElement('td', { style: { ...td, color: brand.textTertiary, fontSize: 11 } }, '(primary market)')
+        : React.createElement('td', { style: td },
+            React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'flex-end' } },
+              React.createElement('span', { style: { fontSize: 11, color: brand.hrGold, fontWeight: 600, minWidth: 40 } }, r.lift > 0 ? '+' + r.lift + '%' : '—'),
+              React.createElement('div', { style: { width: 60, height: 4, background: brand.border, borderRadius: 2 } },
+                React.createElement('div', { style: { width: `${(r.attributedVisits / maxV) * 100}%`, height: 4, background: brand.hrGold, borderRadius: 2 } })
+              )
+            )
+          )
+    );
+
+  return React.createElement(React.Fragment, null,
+    React.createElement(Heading, null, 'Hard Rock network — campaign halo effect'),
+    // KPI row
+    React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, marginBottom: 16 } },
+      React.createElement(K, { label: 'Total network attributed visits', value: fmt.c(totalNet), gold: true }),
+      React.createElement(K, { label: 'Properties with measurable lift', value: liftCount.toString(), sub: `Out of ${d.networkProperties.length - 1} tracked` }),
+      React.createElement(K, { label: 'Top non-Vegas property', value: 'Seminole HR Hollywood', sub: '+18.4% lift vs. baseline' })
+    ),
+    // Halo bar chart
+    React.createElement(Card, {
+      title: 'Attributed visits by property',
+      subtitle: 'Vegas campaign halo — visits at other Hard Rock properties attributed to Vegas-exposed visitors',
+      height: 300,
+    },
+      React.createElement(ResponsiveContainer, { width: '100%', height: '100%' },
+        React.createElement(BarChart, {
+          data: topChart.map(p => ({
+            name: p.name.replace('Seminole HR', 'Seminole').replace('Hard Rock ', 'HR '),
+            v: p.attributedVisits,
+          })),
+          margin: { top: 5, right: 20, left: 0, bottom: 50 },
+        },
+          React.createElement(CartesianGrid, { stroke: brand.border, strokeDasharray: '3 3', vertical: false }),
+          React.createElement(XAxis, { dataKey: 'name', stroke: brand.textSecondary, fontSize: 9, angle: -35, textAnchor: 'end', interval: 0 }),
+          React.createElement(YAxis, { stroke: brand.textSecondary, fontSize: 11, tickFormatter: fmt.c }),
+          React.createElement(Bar, { dataKey: 'v', radius: [4, 4, 0, 0] },
+            topChart.map((_, i) => React.createElement(Cell, { key: i, fill: cc[i % cc.length] }))
+          )
+        )
+      )
+    ),
+    // Full property table
+    React.createElement('div', { style: { marginTop: 16, background: brand.bgCard, border: `1px solid ${brand.border}`, borderRadius: 12, padding: 18 } },
+      React.createElement('div', { style: { fontSize: 14, fontWeight: 600, color: brand.textPrimary, marginBottom: 14 } }, 'Property performance — attributed visitation'),
+      React.createElement('div', { style: { overflowX: 'auto' } },
+        React.createElement('table', { style: { width: '100%', borderCollapse: 'collapse', minWidth: 700 } },
+          React.createElement('thead', null,
+            React.createElement('tr', null,
+              React.createElement('th', { style: thL }, 'Property'),
+              React.createElement('th', { style: thL }, 'Location'),
+              React.createElement('th', { style: th }, 'Attributed Visits'),
+              React.createElement('th', { style: th }, 'Unique Visitors'),
+              React.createElement('th', { style: { ...th, color: brand.hrGold } }, 'Unity %'),
+              React.createElement('th', { style: { ...th, color: brand.hrGold } }, 'Lift vs. Baseline')
+            )
+          ),
+          React.createElement('tbody', null,
+            React.createElement(PropertyRow, { r: vegasRow, isVegas: true }),
+            React.createElement(SectionLabel, { label: 'United States' }),
+            usRows.map((r, i) => React.createElement(PropertyRow, { key: i, r, isVegas: false })),
+            React.createElement(SectionLabel, { label: 'Americas — International' }),
+            intlRows.filter(r => r.region === 'Americas').map((r, i) => React.createElement(PropertyRow, { key: i, r, isVegas: false })),
+            React.createElement(SectionLabel, { label: 'Europe, Middle East & Africa' }),
+            intlRows.filter(r => r.region === 'EMEA').map((r, i) => React.createElement(PropertyRow, { key: i, r, isVegas: false })),
+            React.createElement(SectionLabel, { label: 'Asia Pacific' }),
+            intlRows.filter(r => r.region === 'Asia Pacific').map((r, i) => React.createElement(PropertyRow, { key: i, r, isVegas: false }))
+          )
+        )
+      )
+    )
+  );
+};
+
+// ─── TAB: CAMPAIGN DETAIL ────────────────────────────────────────────────────
+const TabCampaign = ({ d }) =>
+  React.createElement(React.Fragment, null,
+    React.createElement(Heading, null, 'Loyalty & new visitor split'),
+    React.createElement('div', { style: { display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 12, marginBottom: 4 } },
+      React.createElement(Card, { title: 'Unity members vs. new visitors', height: 220 },
+        React.createElement(ResponsiveContainer, { width: '100%', height: '100%' },
+          React.createElement(PieChart, null,
+            React.createElement(Pie, {
+              data: d.unityVsNew, cx: '50%', cy: '50%', innerRadius: 55, outerRadius: 90,
+              dataKey: 'pct', nameKey: 'label', label: e => `${e.label} ${e.pct}%`, labelLine: false,
+            },
+              d.unityVsNew.map((_, i) => React.createElement(Cell, { key: i, fill: i === 0 ? brand.hrGold : brand.hrRed }))
+            )
+          )
+        )
+      ),
+      React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, alignContent: 'center' } },
+        React.createElement(K, { label: 'Total visitors',  value: fmt.c(d.kpis.uniqueVisitors) }),
+        React.createElement(K, { label: 'Unity members',   value: fmt.c(d.unityKpis.unityVisitors), gold: true, sub: 'Loyalty program identified' }),
+        React.createElement(K, { label: 'New visitors',    value: fmt.c(d.unityKpis.newVisitors), sub: 'First-time / non-Unity' })
+      )
+    ),
+    React.createElement(Heading, null, 'Performance by tactic'),
+    React.createElement(Card, { title: 'Tactic performance', subtitle: 'Efficiency and frequency by media tactic', height: 360 },
+      React.createElement('div', { style: { overflowX: 'auto' } },
+        React.createElement('table', { style: { width: '100%', fontSize: 12, borderCollapse: 'collapse', minWidth: 820 } },
+          React.createElement('thead', null,
+            React.createElement('tr', { style: { borderBottom: `1px solid ${brand.border}` } },
+              [
+                ['Tactic', 'left', false], ['Visits', 'right', false], ['Visitors', 'right', false],
+                ['Impressions', 'right', false], ['Spend', 'right', false],
+                ['CPV', 'right', true], ['CPUV', 'right', true],
+                ['Mo. Freq', 'right', true], ['Qtr. Freq', 'right', true], ['Ann. Freq', 'right', true],
+              ].map(([h, a, acc]) =>
+                React.createElement('th', {
+                  key: h,
+                  style: {
+                    padding: '8px 6px', fontSize: 10,
+                    color: acc ? brand.hrGold : brand.textSecondary,
+                    fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em',
+                    textAlign: a, whiteSpace: 'nowrap',
+                  }
+                }, h)
+              )
+            )
+          ),
+          React.createElement('tbody', null,
+            d.tactics.map((r, i) => {
+              const cpv = r.spend / r.visits;
+              const cpuv = r.spend / r.visitors;
+              const moF = r.moV / r.moU;
+              const qtF = r.qtV / r.qtU;
+              const anF = r.visits / r.visitors;
+              return React.createElement('tr', { key: i, style: { borderBottom: `1px solid ${brand.border}` } },
+                React.createElement('td', { style: { padding: '10px 6px', color: brand.textPrimary, fontWeight: 500 } }, r.tactic),
+                React.createElement('td', { style: { padding: '10px 6px', textAlign: 'right', color: brand.textPrimary } }, fmt.n(r.visits)),
+                React.createElement('td', { style: { padding: '10px 6px', textAlign: 'right', color: brand.textPrimary } }, fmt.n(r.visitors)),
+                React.createElement('td', { style: { padding: '10px 6px', textAlign: 'right', color: brand.textSecondary } }, fmt.c(r.impressions)),
+                React.createElement('td', { style: { padding: '10px 6px', textAlign: 'right', color: brand.textSecondary } }, fmt.$c(r.spend)),
+                React.createElement('td', { style: { padding: '10px 6px', textAlign: 'right', color: brand.hrGold, fontWeight: 600 } }, fmt.d(cpv)),
+                React.createElement('td', { style: { padding: '10px 6px', textAlign: 'right', color: brand.hrGold, fontWeight: 600 } }, fmt.d(cpuv)),
+                React.createElement('td', { style: { padding: '10px 6px', textAlign: 'right', color: brand.hrGold, fontWeight: 600 } }, fmt.freq(moF)),
+                React.createElement('td', { style: { padding: '10px 6px', textAlign: 'right', color: brand.hrGold, fontWeight: 600 } }, fmt.freq(qtF)),
+                React.createElement('td', { style: { padding: '10px 6px', textAlign: 'right', color: brand.hrGold, fontWeight: 600 } }, fmt.freq(anF))
+              );
+            })
+          )
+        )
+      )
+    ),
+    React.createElement('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 12 } },
+      React.createElement(Card, { title: 'CPV by tactic', subtitle: 'Cost per visit — lower is better', height: 260 },
+        React.createElement(ResponsiveContainer, { width: '100%', height: '100%' },
+          React.createElement(BarChart, {
+            data: d.tactics.map(r => ({ tactic: r.tactic, cpv: parseFloat((r.spend / r.visits).toFixed(2)) })),
+            margin: { top: 5, right: 20, left: 0, bottom: 0 },
+          },
+            React.createElement(CartesianGrid, { stroke: brand.border, strokeDasharray: '3 3', vertical: false }),
+            React.createElement(XAxis, { dataKey: 'tactic', stroke: brand.textSecondary, fontSize: 9 }),
+            React.createElement(YAxis, { stroke: brand.textSecondary, fontSize: 11, tickFormatter: v => '$' + v }),
+            React.createElement(Bar, { dataKey: 'cpv', radius: [4, 4, 0, 0] },
+              d.tactics.map((_, i) => React.createElement(Cell, { key: i, fill: cc[i % cc.length] }))
+            )
+          )
+        )
+      ),
+      React.createElement(Card, { title: 'Annual frequency by tactic', subtitle: 'Avg annual visits per unique visitor', height: 260 },
+        React.createElement(ResponsiveContainer, { width: '100%', height: '100%' },
+          React.createElement(BarChart, {
+            data: d.tactics.map(r => ({ tactic: r.tactic, freq: parseFloat((r.visits / r.visitors).toFixed(1)) })),
+            margin: { top: 5, right: 20, left: 0, bottom: 0 },
+          },
+            React.createElement(CartesianGrid, { stroke: brand.border, strokeDasharray: '3 3', vertical: false }),
+            React.createElement(XAxis, { dataKey: 'tactic', stroke: brand.textSecondary, fontSize: 9 }),
+            React.createElement(YAxis, { stroke: brand.textSecondary, fontSize: 11, tickFormatter: v => v + 'x' }),
+            React.createElement(Bar, { dataKey: 'freq', radius: [4, 4, 0, 0] },
+              d.tactics.map((_, i) => React.createElement(Cell, { key: i, fill: cc[i % cc.length] }))
+            )
+          )
+        )
+      )
+    )
+  );
+
+// ─── MAIN DASHBOARD ───────────────────────────────────────────────────────────
+const TABS = [
+  { id: 'overview',    label: 'Overview'        },
+  { id: 'behavior',   label: 'Visitor Behavior' },
+  { id: 'audience',   label: 'Audience'         },
+  { id: 'origins',    label: 'Origins'          },
+  { id: 'competitive',label: 'Competitive'      },
+  { id: 'network',    label: 'HR Network'       },
+  { id: 'campaign',   label: 'Campaign Detail'  },
+];
+
+function App() {
+  const [tab, setTab] = useState('overview');
+
+  return React.createElement('div', {
+    style: {
+      background: brand.bgPage,
+      minHeight: '100vh',
+      padding: '24px 32px',
+      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      color: brand.textPrimary,
+    }
+  },
+    // ── Header ──
+    React.createElement('div', {
+      style: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', paddingBottom: 20 }
+    },
+      React.createElement('div', null,
+        React.createElement('div', { style: { fontSize: 12, color: brand.hrGold, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' } }, '\u2665 Hard Rock Hotel & Casino'),
+        React.createElement('div', { style: { fontSize: 24, fontWeight: 600, color: brand.textPrimary, marginTop: 4 } }, 'Las Vegas, Nevada'),
+        React.createElement('div', { style: { fontSize: 13, color: brand.textSecondary, marginTop: 4 } }, data.reportingPeriod)
+      ),
+      React.createElement('div', { style: { display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' } },
+        React.createElement('span', {
+          style: { fontSize: 11, padding: '4px 10px', background: brand.bgTint, color: brand.hrGold, border: `1px solid ${brand.hrGold}`, borderRadius: 20, fontWeight: 500 }
+        }, 'Projected Data \u2014 For Illustration Only'),
+        React.createElement('span', {
+          style: { fontSize: 11, padding: '4px 10px', background: '#0d1a0d', color: '#4caf50', border: '1px solid #2e5c2e', borderRadius: 20, fontWeight: 500 }
+        }, 'Opening 2027'),
+        React.createElement('button', {
+          className: 'no-print',
+          onClick: () => window.print(),
+          style: { fontSize: 12, padding: '7px 14px', background: brand.hrGold, color: '#0a0a0f', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }
+        }, 'Export Report')
+      )
+    ),
+
+    // ── Tab bar ──
+    React.createElement('div', {
+      style: {
+        display: 'flex',
+        borderBottom: `1px solid ${brand.border}`,
+        marginBottom: 20,
+        overflowX: 'auto',
+      }
+    },
+      TABS.map(t =>
+        React.createElement('button', {
+          key: t.id,
+          onClick: () => setTab(t.id),
+          style: {
+            padding: '12px 18px',
+            fontSize: 13,
+            fontWeight: 500,
+            background: 'transparent',
+            border: 'none',
+            borderBottom: tab === t.id ? `3px solid ${brand.hrGold}` : '3px solid transparent',
+            color: tab === t.id ? brand.hrGoldLight : brand.textSecondary,
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+          }
+        }, t.label)
+      )
+    ),
+
+    // ── Tab content ──
+    tab === 'overview'    && React.createElement(TabOverview,    { d: data }),
+    tab === 'behavior'    && React.createElement(TabBehavior,    { d: data }),
+    tab === 'audience'    && React.createElement(TabAudience,    { d: data }),
+    tab === 'origins'     && React.createElement(TabOrigins,     { d: data }),
+    tab === 'competitive' && React.createElement(TabCompetitive, { d: data }),
+    tab === 'network'     && React.createElement(TabNetwork,     { d: data }),
+    tab === 'campaign'    && React.createElement(TabCampaign,    { d: data }),
+
+    // ── Footer ──
+    React.createElement('div', {
+      style: {
+        marginTop: 32,
+        paddingTop: 20,
+        borderTop: `1px solid ${brand.border}`,
+        display: 'flex',
+        justifyContent: 'space-between',
+        fontSize: 11,
+        color: brand.textTertiary,
+      }
+    },
+      React.createElement('div', null, 'Powered by Q1Media location intelligence'),
+      React.createElement('div', null, 'Generated ' + new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }))
+    )
+  );
+}
+
+ReactDOM.render(React.createElement(App), document.getElementById('root'));
+
+})();
+</script>
+</body>
+</html>

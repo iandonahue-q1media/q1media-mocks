@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AREA15 — Visitation Intelligence Report</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #141414; }
+  * { box-sizing: border-box; }
+  #root { min-height: 100vh; }
+  @media print {
+    @page { size: landscape; margin: 12mm; }
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+
+<!-- UMD libraries — ORDER MATTERS: React -> ReactDOM -> PropTypes -> Recharts.
+     Recharts externalizes React/ReactDOM/PropTypes; omitting any (esp. PropTypes)
+     causes a silent failure / blank page. -->
+<script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.12.7/Recharts.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script>
+// ---- UMD globals (loaded via CDN script tags, in order) ----
+const {
+  useState
+} = React;
+const {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer
+} = Recharts;
+
+// =============================================================================
+// Q1MEDIA SINGLE LOCATION — ATTRACTION VERTICAL (adapted from Casino template)
+// Client: AREA15 — strong brand override (Area 15 dark identity, neon green accent).
+// Q1Media branding -> footer. Structure/components mirror the casino template.
+// =============================================================================
+
+// ----- BRAND TOKENS (Area 15 override — dark, neon green) -----
+const brand = {
+  neon: '#a9ff29',
+  // dominant brand accent — CTAs, hero, client slice
+  magenta: '#db02a3',
+  blue: '#00bce7',
+  purple: '#9747ff',
+  orange: '#ff9615',
+  emerald: '#2ae3a4',
+  gold: '#d9ae8f',
+  yellow: '#fff21f',
+  red: '#ff3a6b',
+  bgPage: '#141414',
+  bgSurface: '#1c1c1c',
+  bgCard: '#1f1f1f',
+  bgTint: '#2a2a2a',
+  border: '#333333',
+  textPrimary: '#ffffff',
+  textSecondary: '#9a9a9a',
+  textTertiary: '#6a6a6a',
+  offWhite: '#edede4'
+};
+// chart sequence — neon first (hero), then extended palette
+const cc = [brand.neon, brand.magenta, brand.blue, brand.purple, brand.orange, brand.emerald, brand.gold, brand.yellow, brand.red, '#808080', '#b06bff'];
+// non-client slice palette (excludes neon, which is reserved for the client)
+const otherPalette = [brand.magenta, brand.blue, brand.purple, brand.orange, brand.emerald, brand.gold, brand.yellow, brand.red, '#808080', '#b06bff'];
+const FONT = '"Helvetica Neue", Helvetica, Arial, sans-serif';
+
+// ----- CLIENT DATA -----
+const data = {
+  clientName: 'AREA15',
+  address: '3215 S Rancho Dr, Las Vegas, NV 89102',
+  reportingPeriod: 'Jan – Dec 2026',
+  // Headline = AREA15 full building (measured visitation basis)
+  kpis: {
+    totalVisits: 612000,
+    uniqueVisitors: 510000,
+    repeatRate: 16.8,
+    cpv: 4.08,
+    cpuv: 4.90,
+    mediaSpend: 2500000,
+    impressions: 70200000,
+    clicks: 386000,
+    ctr: 0.55,
+    freqMonthly: 1.05,
+    freqQuarterly: 1.11,
+    freqAnnual: 1.20
+  },
+  // Shared-campus venues (same parking lot) — full building vs. 3 neighbors
+  campus: [{
+    venue: 'AREA15 (full building)',
+    visits: 612000,
+    uniques: 510000
+  }, {
+    venue: 'John Wick Experience',
+    visits: 104000,
+    uniques: 91000
+  }, {
+    venue: 'Illuminarium',
+    visits: 88000,
+    uniques: 76000
+  }, {
+    venue: 'Oddyssey Manor',
+    visits: 67000,
+    uniques: 59000
+  }],
+  weeklyTrends: [{
+    week: 'W1',
+    visits: 10200,
+    repeat: 1650
+  }, {
+    week: 'W2',
+    visits: 10800,
+    repeat: 1780
+  }, {
+    week: 'W3',
+    visits: 11600,
+    repeat: 1920
+  }, {
+    week: 'W4',
+    visits: 11200,
+    repeat: 1850
+  }, {
+    week: 'W5',
+    visits: 12400,
+    repeat: 2050
+  }, {
+    week: 'W6',
+    visits: 13100,
+    repeat: 2180
+  }, {
+    week: 'W7',
+    visits: 14200,
+    repeat: 2360
+  }, {
+    week: 'W8',
+    visits: 15400,
+    repeat: 2540
+  }, {
+    week: 'W9',
+    visits: 14600,
+    repeat: 2420
+  }, {
+    week: 'W10',
+    visits: 13200,
+    repeat: 2180
+  }, {
+    week: 'W11',
+    visits: 12100,
+    repeat: 1990
+  }, {
+    week: 'W12',
+    visits: 11400,
+    repeat: 1880
+  }],
+  // New dominates (tourist destination, low repeat)
+  repeatVsNew: [{
+    label: 'New',
+    pct: 83.2
+  }, {
+    label: 'Repeat',
+    pct: 16.8
+  }],
+  visitsByDow: [{
+    day: 'Mon',
+    v: 62000
+  }, {
+    day: 'Tue',
+    v: 58000
+  }, {
+    day: 'Wed',
+    v: 64000
+  }, {
+    day: 'Thu',
+    v: 78000
+  }, {
+    day: 'Fri',
+    v: 112000
+  }, {
+    day: 'Sat',
+    v: 134000
+  }, {
+    day: 'Sun',
+    v: 104000
+  }],
+  // Opens 11a, evening peak; Fri/Sat late-night 21+
+  visitsByHour: [{
+    hour: '12a',
+    v: 18000
+  }, {
+    hour: '2a',
+    v: 4000
+  }, {
+    hour: '4a',
+    v: 800
+  }, {
+    hour: '6a',
+    v: 900
+  }, {
+    hour: '8a',
+    v: 2100
+  }, {
+    hour: '10a',
+    v: 6200
+  }, {
+    hour: '12p',
+    v: 28000
+  }, {
+    hour: '2p',
+    v: 44000
+  }, {
+    hour: '4p',
+    v: 62000
+  }, {
+    hour: '6p',
+    v: 88000
+  }, {
+    hour: '8p',
+    v: 102000
+  }, {
+    hour: '10p',
+    v: 74000
+  }],
+  demographics: {
+    age: [{
+      b: 'Under 18',
+      p: 9
+    }, {
+      b: '18-24',
+      p: 21
+    }, {
+      b: '25-34',
+      p: 29
+    }, {
+      b: '35-44',
+      p: 22
+    }, {
+      b: '45-54',
+      p: 12
+    }, {
+      b: '55+',
+      p: 7
+    }],
+    gender: [{
+      label: 'Female',
+      pct: 53
+    }, {
+      label: 'Male',
+      pct: 47
+    }],
+    income: [{
+      b: '<$50K',
+      p: 16
+    }, {
+      b: '$50-75K',
+      p: 24
+    }, {
+      b: '$75-100K',
+      p: 26
+    }, {
+      b: '$100-150K',
+      p: 22
+    }, {
+      b: '$150K+',
+      p: 12
+    }]
+  },
+  topCities: [{
+    city: 'Los Angeles',
+    state: 'CA',
+    visits: 78000,
+    visitors: 64000,
+    share: 12.7
+  }, {
+    city: 'Las Vegas',
+    state: 'NV',
+    visits: 64000,
+    visitors: 52000,
+    share: 10.5
+  }, {
+    city: 'Phoenix',
+    state: 'AZ',
+    visits: 41000,
+    visitors: 34000,
+    share: 6.7
+  }, {
+    city: 'San Diego',
+    state: 'CA',
+    visits: 32000,
+    visitors: 27000,
+    share: 5.2
+  }, {
+    city: 'Henderson',
+    state: 'NV',
+    visits: 29000,
+    visitors: 24000,
+    share: 4.7
+  }, {
+    city: 'Riverside',
+    state: 'CA',
+    visits: 24000,
+    visitors: 20000,
+    share: 3.9
+  }, {
+    city: 'Salt Lake City',
+    state: 'UT',
+    visits: 21000,
+    visitors: 18000,
+    share: 3.4
+  }, {
+    city: 'Denver',
+    state: 'CO',
+    visits: 18000,
+    visitors: 15000,
+    share: 2.9
+  }, {
+    city: 'Dallas',
+    state: 'TX',
+    visits: 16000,
+    visitors: 13000,
+    share: 2.6
+  }, {
+    city: 'Chicago',
+    state: 'IL',
+    visits: 14000,
+    visitors: 12000,
+    share: 2.3
+  }],
+  distanceBands: [{
+    band: 'Under 2 miles',
+    visits: 12000,
+    visitors: 10000,
+    share: 2.0
+  }, {
+    band: '2–5 miles',
+    visits: 22000,
+    visitors: 18000,
+    share: 3.6
+  }, {
+    band: '5–10 miles',
+    visits: 38000,
+    visitors: 31000,
+    share: 6.2
+  }, {
+    band: '10–50 miles',
+    visits: 110000,
+    visitors: 88000,
+    share: 18.0
+  }, {
+    band: '50–100 miles',
+    visits: 64000,
+    visitors: 53000,
+    share: 10.5
+  }, {
+    band: '100+ miles',
+    visits: 366000,
+    visitors: 310000,
+    share: 59.8
+  }],
+  // ≤50 mi = Local, >50 mi = Traveler
+  localVsTraveler: [{
+    label: 'Traveler (>50 mi)',
+    value: 430000,
+    pct: 70.3
+  }, {
+    label: 'Local (≤50 mi)',
+    value: 182000,
+    pct: 29.7
+  }],
+  // 11 separate locations (AREA15 + 3 campus neighbors + 7 external non-casino)
+  competitive: [{
+    name: 'AREA15',
+    visits: 612000,
+    visitors: 510000,
+    isClient: true,
+    campus: true
+  }, {
+    name: 'Sphere',
+    visits: 540000,
+    visitors: 472000,
+    isClient: false,
+    campus: false
+  }, {
+    name: 'Atomic Golf',
+    visits: 224000,
+    visitors: 178000,
+    isClient: false,
+    campus: false
+  }, {
+    name: 'Springs Preserve',
+    visits: 196000,
+    visitors: 171000,
+    isClient: false,
+    campus: false
+  }, {
+    name: 'The Mob Museum',
+    visits: 168000,
+    visitors: 149000,
+    isClient: false,
+    campus: false
+  }, {
+    name: 'The Neon Museum',
+    visits: 142000,
+    visitors: 128000,
+    isClient: false,
+    campus: false
+  }, {
+    name: 'John Wick Experience',
+    visits: 104000,
+    visitors: 91000,
+    isClient: false,
+    campus: true
+  }, {
+    name: 'Illuminarium',
+    visits: 88000,
+    visitors: 76000,
+    isClient: false,
+    campus: true
+  }, {
+    name: 'National Atomic Testing Museum',
+    visits: 74000,
+    visitors: 67000,
+    isClient: false,
+    campus: false
+  }, {
+    name: 'Oddyssey Manor',
+    visits: 67000,
+    visitors: 59000,
+    isClient: false,
+    campus: true
+  }, {
+    name: 'The Punk Rock Museum',
+    visits: 58000,
+    visitors: 52000,
+    isClient: false,
+    campus: false
+  }],
+  tactics: [{
+    tactic: 'cTV / OTT',
+    visits: 168000,
+    visitors: 142000,
+    impressions: 18400000,
+    spend: 720000,
+    moV: 26800,
+    moU: 25500,
+    qtV: 72100,
+    qtU: 65000
+  }, {
+    tactic: 'PreRoll Video',
+    visits: 148000,
+    visitors: 126000,
+    impressions: 16200000,
+    spend: 560000,
+    moV: 23700,
+    moU: 22600,
+    qtV: 64000,
+    qtU: 57900
+  }, {
+    tactic: 'Paid Social',
+    visits: 132000,
+    visitors: 108000,
+    impressions: 14800000,
+    spend: 520000,
+    moV: 20600,
+    moU: 19400,
+    qtV: 56300,
+    qtU: 49700
+  }, {
+    tactic: 'PMAX',
+    visits: 96000,
+    visitors: 82000,
+    impressions: 9600000,
+    spend: 410000,
+    moV: 15400,
+    moU: 14700,
+    qtV: 41600,
+    qtU: 37700
+  }, {
+    tactic: 'Programmatic Display',
+    visits: 68000,
+    visitors: 52000,
+    impressions: 11200000,
+    spend: 290000,
+    moV: 10200,
+    moU: 9400,
+    qtV: 28300,
+    qtU: 23900
+  }]
+};
+
+// ----- FORMATTERS -----
+const fmt = {
+  n: v => v.toLocaleString('en-US'),
+  c: v => {
+    if (v >= 1e6) return (v / 1e6).toFixed(1) + 'M';
+    if (v >= 1e3) return (v / 1e3).toFixed(1) + 'K';
+    return v.toString();
+  },
+  $c: v => {
+    if (v >= 1e6) return '$' + (v / 1e6).toFixed(1) + 'M';
+    if (v >= 1e3) return '$' + (v / 1e3).toFixed(0) + 'K';
+    return '$' + v.toFixed(2);
+  },
+  pct: v => v.toFixed(2) + '%',
+  d: v => '$' + v.toFixed(2),
+  freq: v => v.toFixed(2) + 'x'
+};
+
+// ----- SHARED COMPONENTS -----
+const K = ({
+  label,
+  value,
+  sub,
+  accent
+}) => /*#__PURE__*/React.createElement("div", {
+  style: {
+    background: brand.bgCard,
+    border: `1px solid ${brand.border}`,
+    borderRadius: 0,
+    padding: '16px 18px',
+    minHeight: 96,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between'
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 11,
+    fontWeight: 700,
+    color: brand.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: '1.2px'
+  }
+}, label), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 28,
+    fontWeight: 700,
+    color: accent ? brand.neon : brand.textPrimary,
+    lineHeight: 1.05,
+    letterSpacing: '-0.5px'
+  }
+}, value), sub && /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 11,
+    color: brand.textTertiary,
+    marginTop: 4
+  }
+}, sub)));
+const Card = ({
+  title,
+  subtitle,
+  children,
+  height = 280
+}) => /*#__PURE__*/React.createElement("div", {
+  style: {
+    background: brand.bgCard,
+    border: `1px solid ${brand.border}`,
+    borderRadius: 0,
+    padding: 18
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    marginBottom: 14
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 14,
+    fontWeight: 700,
+    color: brand.textPrimary,
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px'
+  }
+}, title), subtitle && /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 12,
+    color: brand.textSecondary,
+    marginTop: 3
+  }
+}, subtitle)), /*#__PURE__*/React.createElement("div", {
+  style: {
+    width: '100%',
+    height
+  }
+}, children));
+const Heading = ({
+  children
+}) => /*#__PURE__*/React.createElement("div", {
+  style: {
+    margin: '26px 0 12px'
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 16,
+    fontWeight: 700,
+    color: brand.textPrimary,
+    display: 'inline-block',
+    paddingBottom: 5,
+    borderBottom: `3px solid ${brand.neon}`,
+    textTransform: 'uppercase',
+    letterSpacing: '-0.3px'
+  }
+}, children));
+const OriginsTable = ({
+  rows,
+  showCity
+}) => {
+  const max = Math.max(...rows.map(r => r.share));
+  const th = {
+    padding: '8px 8px',
+    fontSize: 10,
+    color: brand.textSecondary,
+    fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: '1px',
+    borderBottom: `1px solid ${brand.border}`,
+    whiteSpace: 'nowrap'
+  };
+  const td = {
+    padding: '10px 8px',
+    fontSize: 13
+  };
+  return /*#__PURE__*/React.createElement("table", {
+    style: {
+      width: '100%',
+      borderCollapse: 'collapse'
+    }
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
+    style: {
+      ...th,
+      textAlign: 'left'
+    }
+  }, showCity ? 'City' : 'Distance'), showCity && /*#__PURE__*/React.createElement("th", {
+    style: {
+      ...th,
+      textAlign: 'left'
+    }
+  }, "State"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      ...th,
+      textAlign: 'right'
+    }
+  }, "Visits"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      ...th,
+      textAlign: 'right'
+    }
+  }, "Unique Visitors"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      ...th,
+      textAlign: 'right',
+      width: 160
+    }
+  }, "Share"))), /*#__PURE__*/React.createElement("tbody", null, rows.map((r, i) => /*#__PURE__*/React.createElement("tr", {
+    key: i,
+    style: {
+      borderBottom: `1px solid ${brand.border}`
+    }
+  }, /*#__PURE__*/React.createElement("td", {
+    style: {
+      ...td,
+      textAlign: 'left',
+      color: brand.textPrimary,
+      fontWeight: 600
+    }
+  }, showCity ? r.city : r.band), showCity && /*#__PURE__*/React.createElement("td", {
+    style: {
+      ...td,
+      textAlign: 'left',
+      color: brand.textSecondary
+    }
+  }, r.state), /*#__PURE__*/React.createElement("td", {
+    style: {
+      ...td,
+      textAlign: 'right',
+      color: brand.textPrimary
+    }
+  }, fmt.n(r.visits)), /*#__PURE__*/React.createElement("td", {
+    style: {
+      ...td,
+      textAlign: 'right',
+      color: brand.textPrimary
+    }
+  }, fmt.n(r.visitors)), /*#__PURE__*/React.createElement("td", {
+    style: {
+      ...td,
+      textAlign: 'right'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+      justifyContent: 'flex-end'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 12,
+      color: brand.textSecondary,
+      minWidth: 38
+    }
+  }, r.share, "%"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 80,
+      height: 5,
+      background: brand.border,
+      borderRadius: 0
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: `${r.share / max * 100}%`,
+      height: 5,
+      background: brand.neon,
+      borderRadius: 0
+    }
+  }))))))));
+};
+
+// ----- TAB: OVERVIEW -----
+const TabOverview = ({
+  d
+}) => /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Heading, null, "Visitation impact"), /*#__PURE__*/React.createElement("div", {
+  style: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(5,1fr)',
+    gap: 12,
+    marginBottom: 12
+  }
+}, /*#__PURE__*/React.createElement(K, {
+  label: "Total visits",
+  value: fmt.c(d.kpis.totalVisits),
+  accent: true
+}), /*#__PURE__*/React.createElement(K, {
+  label: "Unique visitors",
+  value: fmt.c(d.kpis.uniqueVisitors)
+}), /*#__PURE__*/React.createElement(K, {
+  label: "Repeat rate",
+  value: d.kpis.repeatRate + '%'
+}), /*#__PURE__*/React.createElement(K, {
+  label: "Cost per visit",
+  value: fmt.d(d.kpis.cpv)
+}), /*#__PURE__*/React.createElement(K, {
+  label: "Cost per visitor",
+  value: fmt.d(d.kpis.cpuv)
+})), /*#__PURE__*/React.createElement(Heading, null, "Visit frequency"), /*#__PURE__*/React.createElement("div", {
+  style: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3,1fr)',
+    gap: 12,
+    marginBottom: 12
+  }
+}, /*#__PURE__*/React.createElement(K, {
+  label: "Monthly frequency",
+  value: fmt.freq(d.kpis.freqMonthly),
+  sub: "Avg visits per unique visitor / month"
+}), /*#__PURE__*/React.createElement(K, {
+  label: "Quarterly frequency",
+  value: fmt.freq(d.kpis.freqQuarterly),
+  sub: "Avg visits per unique visitor / quarter"
+}), /*#__PURE__*/React.createElement(K, {
+  label: "Annual frequency",
+  value: fmt.freq(d.kpis.freqAnnual),
+  sub: "Avg visits per unique visitor / year",
+  accent: true
+})), /*#__PURE__*/React.createElement(Heading, null, "Campaign performance"), /*#__PURE__*/React.createElement("div", {
+  style: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(4,1fr)',
+    gap: 12,
+    marginBottom: 12
+  }
+}, /*#__PURE__*/React.createElement(K, {
+  label: "Media spend",
+  value: fmt.$c(d.kpis.mediaSpend)
+}), /*#__PURE__*/React.createElement(K, {
+  label: "Impressions",
+  value: fmt.c(d.kpis.impressions)
+}), /*#__PURE__*/React.createElement(K, {
+  label: "Clicks",
+  value: fmt.c(d.kpis.clicks)
+}), /*#__PURE__*/React.createElement(K, {
+  label: "CTR",
+  value: fmt.pct(d.kpis.ctr)
+})), /*#__PURE__*/React.createElement(Heading, null, "Shared-campus venues"), /*#__PURE__*/React.createElement("div", {
+  style: {
+    display: 'grid',
+    gridTemplateColumns: '3fr 2fr',
+    gap: 12
+  }
+}, /*#__PURE__*/React.createElement(Card, {
+  title: "Visitation by venue",
+  subtitle: "AREA15 building vs. neighboring attractions sharing the parking lot",
+  height: 300
+}, /*#__PURE__*/React.createElement(ResponsiveContainer, null, /*#__PURE__*/React.createElement(BarChart, {
+  data: d.campus,
+  margin: {
+    top: 5,
+    right: 20,
+    left: 0,
+    bottom: 0
+  }
+}, /*#__PURE__*/React.createElement(CartesianGrid, {
+  stroke: brand.border,
+  strokeDasharray: "3 3",
+  vertical: false
+}), /*#__PURE__*/React.createElement(XAxis, {
+  dataKey: "venue",
+  stroke: brand.textSecondary,
+  fontSize: 10,
+  interval: 0,
+  tick: {
+    width: 90
+  }
+}), /*#__PURE__*/React.createElement(YAxis, {
+  stroke: brand.textSecondary,
+  fontSize: 11,
+  tickFormatter: fmt.c
+}), /*#__PURE__*/React.createElement(Legend, {
+  wrapperStyle: {
+    fontSize: 12,
+    color: brand.textSecondary
+  }
+}), /*#__PURE__*/React.createElement(Bar, {
+  dataKey: "visits",
+  name: "Visits",
+  fill: brand.neon,
+  radius: [0, 0, 0, 0]
+}), /*#__PURE__*/React.createElement(Bar, {
+  dataKey: "uniques",
+  name: "Unique visitors",
+  fill: brand.magenta,
+  radius: [0, 0, 0, 0]
+})))), /*#__PURE__*/React.createElement(Card, {
+  title: "Weekly trends",
+  subtitle: "Total visits and repeat visits by week",
+  height: 300
+}, /*#__PURE__*/React.createElement(ResponsiveContainer, null, /*#__PURE__*/React.createElement(LineChart, {
+  data: d.weeklyTrends,
+  margin: {
+    top: 10,
+    right: 20,
+    left: 0,
+    bottom: 0
+  }
+}, /*#__PURE__*/React.createElement(CartesianGrid, {
+  stroke: brand.border,
+  strokeDasharray: "3 3",
+  vertical: false
+}), /*#__PURE__*/React.createElement(XAxis, {
+  dataKey: "week",
+  stroke: brand.textSecondary,
+  fontSize: 11
+}), /*#__PURE__*/React.createElement(YAxis, {
+  yAxisId: "l",
+  stroke: brand.textSecondary,
+  fontSize: 11,
+  tickFormatter: fmt.c
+}), /*#__PURE__*/React.createElement(YAxis, {
+  yAxisId: "r",
+  orientation: "right",
+  stroke: brand.textSecondary,
+  fontSize: 11,
+  tickFormatter: fmt.c
+}), /*#__PURE__*/React.createElement(Legend, {
+  wrapperStyle: {
+    fontSize: 12,
+    color: brand.textSecondary
+  }
+}), /*#__PURE__*/React.createElement(Line, {
+  yAxisId: "l",
+  type: "monotone",
+  dataKey: "visits",
+  name: "Total visits",
+  stroke: brand.neon,
+  strokeWidth: 2.5,
+  dot: {
+    r: 3,
+    fill: brand.neon
+  }
+}), /*#__PURE__*/React.createElement(Line, {
+  yAxisId: "r",
+  type: "monotone",
+  dataKey: "repeat",
+  name: "Repeat visits",
+  stroke: brand.magenta,
+  strokeWidth: 2.5,
+  dot: {
+    r: 3,
+    fill: brand.magenta
+  }
+}))))), /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 11,
+    color: brand.textTertiary,
+    marginTop: 8
+  }
+}, "Illuminarium figures reflect projected visitation on its planned 2026 reopening."));
+
+// ----- TAB: VISITOR BEHAVIOR -----
+const TabBehavior = ({
+  d
+}) => /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Heading, null, "Visitor type"), /*#__PURE__*/React.createElement("div", {
+  style: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 2fr',
+    gap: 12,
+    marginBottom: 12
+  }
+}, /*#__PURE__*/React.createElement(Card, {
+  title: "Repeat vs. new visitors",
+  height: 260
+}, /*#__PURE__*/React.createElement(ResponsiveContainer, null, /*#__PURE__*/React.createElement(PieChart, null, /*#__PURE__*/React.createElement(Pie, {
+  data: d.repeatVsNew,
+  cx: "50%",
+  cy: "50%",
+  innerRadius: 60,
+  outerRadius: 100,
+  dataKey: "pct",
+  nameKey: "label",
+  label: e => `${e.label} ${e.pct}%`,
+  labelLine: false
+}, d.repeatVsNew.map((_, i) => /*#__PURE__*/React.createElement(Cell, {
+  key: i,
+  fill: i === 0 ? brand.neon : brand.magenta,
+  stroke: brand.bgCard,
+  strokeWidth: 2
+})))))), /*#__PURE__*/React.createElement(Card, {
+  title: "Visits by day of week",
+  height: 260
+}, /*#__PURE__*/React.createElement(ResponsiveContainer, null, /*#__PURE__*/React.createElement(BarChart, {
+  data: d.visitsByDow,
+  margin: {
+    top: 5,
+    right: 20,
+    left: 0,
+    bottom: 0
+  }
+}, /*#__PURE__*/React.createElement(CartesianGrid, {
+  stroke: brand.border,
+  strokeDasharray: "3 3",
+  vertical: false
+}), /*#__PURE__*/React.createElement(XAxis, {
+  dataKey: "day",
+  stroke: brand.textSecondary,
+  fontSize: 11
+}), /*#__PURE__*/React.createElement(YAxis, {
+  stroke: brand.textSecondary,
+  fontSize: 11,
+  tickFormatter: fmt.c
+}), /*#__PURE__*/React.createElement(Bar, {
+  dataKey: "v",
+  fill: brand.neon,
+  radius: [0, 0, 0, 0]
+}))))), /*#__PURE__*/React.createElement(Card, {
+  title: "Visits by hour of day",
+  subtitle: "Traffic pattern across operating hours (opens 11a; Fri/Sat late-night 21+)",
+  height: 260
+}, /*#__PURE__*/React.createElement(ResponsiveContainer, null, /*#__PURE__*/React.createElement(BarChart, {
+  data: d.visitsByHour,
+  margin: {
+    top: 5,
+    right: 20,
+    left: 0,
+    bottom: 0
+  }
+}, /*#__PURE__*/React.createElement(CartesianGrid, {
+  stroke: brand.border,
+  strokeDasharray: "3 3",
+  vertical: false
+}), /*#__PURE__*/React.createElement(XAxis, {
+  dataKey: "hour",
+  stroke: brand.textSecondary,
+  fontSize: 11
+}), /*#__PURE__*/React.createElement(YAxis, {
+  stroke: brand.textSecondary,
+  fontSize: 11,
+  tickFormatter: fmt.c
+}), /*#__PURE__*/React.createElement(Bar, {
+  dataKey: "v",
+  fill: brand.blue,
+  radius: [0, 0, 0, 0]
+})))));
+
+// ----- TAB: AUDIENCE -----
+const TabAudience = ({
+  d
+}) => /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Heading, null, "Demographics"), /*#__PURE__*/React.createElement("div", {
+  style: {
+    display: 'grid',
+    gridTemplateColumns: '3fr 2fr',
+    gap: 12
+  }
+}, /*#__PURE__*/React.createElement(Card, {
+  title: "Age distribution",
+  height: 280
+}, /*#__PURE__*/React.createElement(ResponsiveContainer, null, /*#__PURE__*/React.createElement(BarChart, {
+  data: d.demographics.age,
+  layout: "vertical",
+  margin: {
+    top: 5,
+    right: 30,
+    left: 10,
+    bottom: 0
+  }
+}, /*#__PURE__*/React.createElement(CartesianGrid, {
+  stroke: brand.border,
+  strokeDasharray: "3 3",
+  horizontal: false
+}), /*#__PURE__*/React.createElement(XAxis, {
+  type: "number",
+  stroke: brand.textSecondary,
+  fontSize: 11,
+  tickFormatter: v => v + '%'
+}), /*#__PURE__*/React.createElement(YAxis, {
+  type: "category",
+  dataKey: "b",
+  stroke: brand.textSecondary,
+  fontSize: 11
+}), /*#__PURE__*/React.createElement(Bar, {
+  dataKey: "p",
+  fill: brand.neon,
+  radius: [0, 0, 0, 0]
+})))), /*#__PURE__*/React.createElement(Card, {
+  title: "Gender split",
+  height: 280
+}, /*#__PURE__*/React.createElement(ResponsiveContainer, null, /*#__PURE__*/React.createElement(PieChart, null, /*#__PURE__*/React.createElement(Pie, {
+  data: d.demographics.gender,
+  cx: "50%",
+  cy: "50%",
+  innerRadius: 55,
+  outerRadius: 90,
+  dataKey: "pct",
+  nameKey: "label",
+  label: e => `${e.label} ${e.pct}%`,
+  labelLine: false
+}, d.demographics.gender.map((_, i) => /*#__PURE__*/React.createElement(Cell, {
+  key: i,
+  fill: i === 0 ? brand.neon : brand.magenta,
+  stroke: brand.bgCard,
+  strokeWidth: 2
+}))))))), /*#__PURE__*/React.createElement("div", {
+  style: {
+    marginTop: 12
+  }
+}, /*#__PURE__*/React.createElement(Card, {
+  title: "Household income",
+  height: 240
+}, /*#__PURE__*/React.createElement(ResponsiveContainer, null, /*#__PURE__*/React.createElement(BarChart, {
+  data: d.demographics.income,
+  margin: {
+    top: 5,
+    right: 20,
+    left: 0,
+    bottom: 0
+  }
+}, /*#__PURE__*/React.createElement(CartesianGrid, {
+  stroke: brand.border,
+  strokeDasharray: "3 3",
+  vertical: false
+}), /*#__PURE__*/React.createElement(XAxis, {
+  dataKey: "b",
+  stroke: brand.textSecondary,
+  fontSize: 10
+}), /*#__PURE__*/React.createElement(YAxis, {
+  stroke: brand.textSecondary,
+  fontSize: 11,
+  tickFormatter: v => v + '%'
+}), /*#__PURE__*/React.createElement(Bar, {
+  dataKey: "p",
+  fill: brand.magenta,
+  radius: [0, 0, 0, 0]
+}))))));
+
+// ----- TAB: ORIGINS -----
+const TabOrigins = ({
+  d
+}) => /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Heading, null, "Origin markets"), /*#__PURE__*/React.createElement("div", {
+  style: {
+    display: 'grid',
+    gridTemplateColumns: '2fr 1fr',
+    gap: 12
+  }
+}, /*#__PURE__*/React.createElement(Card, {
+  title: "Top 10 origin cities",
+  subtitle: "Cities contributing the most visitors",
+  height: 420
+}, /*#__PURE__*/React.createElement(OriginsTable, {
+  rows: d.topCities,
+  showCity: true
+})), /*#__PURE__*/React.createElement(Card, {
+  title: "Locals vs. travelers",
+  subtitle: "≤50 mi = local · >50 mi = traveler",
+  height: 420
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%'
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    flex: 1,
+    minHeight: 230
+  }
+}, /*#__PURE__*/React.createElement(ResponsiveContainer, null, /*#__PURE__*/React.createElement(PieChart, null, /*#__PURE__*/React.createElement(Pie, {
+  data: d.localVsTraveler,
+  cx: "50%",
+  cy: "50%",
+  innerRadius: 58,
+  outerRadius: 98,
+  dataKey: "pct",
+  nameKey: "label",
+  label: e => `${e.pct}%`,
+  labelLine: false
+}, d.localVsTraveler.map((_, i) => /*#__PURE__*/React.createElement(Cell, {
+  key: i,
+  fill: i === 0 ? brand.neon : brand.magenta,
+  stroke: brand.bgCard,
+  strokeWidth: 2
+})))))), /*#__PURE__*/React.createElement("div", {
+  style: {
+    paddingTop: 8
+  }
+}, d.localVsTraveler.map((r, i) => /*#__PURE__*/React.createElement("div", {
+  key: i,
+  style: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    width: 10,
+    height: 10,
+    background: i === 0 ? brand.neon : brand.magenta,
+    flexShrink: 0
+  }
+}), /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 12,
+    color: brand.textPrimary,
+    flex: 1
+  }
+}, r.label), /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 12,
+    color: brand.textSecondary
+  }
+}, fmt.c(r.value), " · ", r.pct, "%"))))))), /*#__PURE__*/React.createElement("div", {
+  style: {
+    marginTop: 12
+  }
+}, /*#__PURE__*/React.createElement(Card, {
+  title: "Distance traveled",
+  subtitle: "Visitor volume by home distance from property",
+  height: 320
+}, /*#__PURE__*/React.createElement(OriginsTable, {
+  rows: d.distanceBands,
+  showCity: false
+}))));
+
+// ----- TAB: COMPETITIVE -----
+const TabCompetitive = ({
+  d
+}) => {
+  const ranked = [...d.competitive].sort((a, b) => b.visits - a.visits);
+  const total = ranked.reduce((s, r) => s + r.visits, 0);
+  const pie = ranked.map(r => ({
+    ...r,
+    pct: (r.visits / total * 100).toFixed(1)
+  }));
+  let oi = 0;
+  const colors = pie.map(r => r.isClient ? brand.neon : otherPalette[oi++ % otherPalette.length]);
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Heading, null, "Competitive intelligence"), /*#__PURE__*/React.createElement(Card, {
+    title: "Visitor share — Las Vegas attractions",
+    subtitle: "11 non-casino destinations · share of measured visits across this set",
+    height: 460
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      height: '100%'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      height: 400
+    }
+  }, /*#__PURE__*/React.createElement(ResponsiveContainer, null, /*#__PURE__*/React.createElement(PieChart, null, /*#__PURE__*/React.createElement(Pie, {
+    data: pie,
+    cx: "50%",
+    cy: "50%",
+    innerRadius: 70,
+    outerRadius: 140,
+    dataKey: "visits",
+    nameKey: "name",
+    labelLine: false,
+    label: ({
+      cx,
+      cy,
+      midAngle,
+      outerRadius,
+      pct
+    }) => {
+      const r = outerRadius + 18,
+        rad = Math.PI / 180;
+      const x = cx + r * Math.cos(-midAngle * rad);
+      const y = cy + r * Math.sin(-midAngle * rad);
+      return /*#__PURE__*/React.createElement("text", {
+        x: x,
+        y: y,
+        fill: brand.textSecondary,
+        textAnchor: x > cx ? 'start' : 'end',
+        dominantBaseline: "central",
+        fontSize: 10,
+        fontWeight: 600
+      }, pct, "%");
+    }
+  }, pie.map((_, i) => /*#__PURE__*/React.createElement(Cell, {
+    key: i,
+    fill: colors[i],
+    stroke: brand.bgCard,
+    strokeWidth: 2
+  })))))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      minWidth: 220,
+      paddingLeft: 8
+    }
+  }, pie.map((r, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+      marginBottom: 7
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 10,
+      height: 10,
+      background: colors[i],
+      flexShrink: 0
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      minWidth: 0
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: brand.textPrimary,
+      fontWeight: r.isClient ? 700 : 400,
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
+    }
+  }, r.name)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: brand.textTertiary,
+      whiteSpace: 'nowrap'
+    }
+  }, fmt.c(r.visits), " · ", r.pct, "%")))))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 12
+    }
+  }, /*#__PURE__*/React.createElement(Card, {
+    title: "Attraction ranking",
+    subtitle: "All locations ranked by visits",
+    height: 460
+  }, /*#__PURE__*/React.createElement("table", {
+    style: {
+      width: '100%',
+      borderCollapse: 'collapse'
+    }
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
+    style: {
+      padding: '8px',
+      fontSize: 10,
+      color: brand.textSecondary,
+      fontWeight: 700,
+      textTransform: 'uppercase',
+      letterSpacing: '1px',
+      textAlign: 'left',
+      borderBottom: `1px solid ${brand.border}`,
+      width: 40
+    }
+  }, "#"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      padding: '8px',
+      fontSize: 10,
+      color: brand.textSecondary,
+      fontWeight: 700,
+      textTransform: 'uppercase',
+      letterSpacing: '1px',
+      textAlign: 'left',
+      borderBottom: `1px solid ${brand.border}`
+    }
+  }, "Location"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      padding: '8px',
+      fontSize: 10,
+      color: brand.textSecondary,
+      fontWeight: 700,
+      textTransform: 'uppercase',
+      letterSpacing: '1px',
+      textAlign: 'right',
+      borderBottom: `1px solid ${brand.border}`
+    }
+  }, "Visits"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      padding: '8px',
+      fontSize: 10,
+      color: brand.textSecondary,
+      fontWeight: 700,
+      textTransform: 'uppercase',
+      letterSpacing: '1px',
+      textAlign: 'right',
+      borderBottom: `1px solid ${brand.border}`
+    }
+  }, "Unique Visitors"))), /*#__PURE__*/React.createElement("tbody", null, ranked.map((r, i) => /*#__PURE__*/React.createElement("tr", {
+    key: i,
+    style: {
+      borderBottom: `1px solid ${brand.border}`,
+      background: r.isClient ? brand.bgTint : 'transparent'
+    }
+  }, /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '11px 8px',
+      fontSize: 13,
+      color: brand.textTertiary
+    }
+  }, i + 1), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '11px 8px',
+      fontSize: 13,
+      color: r.isClient ? brand.neon : brand.textPrimary,
+      fontWeight: r.isClient ? 700 : 600
+    }
+  }, r.name), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '11px 8px',
+      fontSize: 13,
+      textAlign: 'right',
+      color: brand.textPrimary
+    }
+  }, fmt.n(r.visits)), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '11px 8px',
+      fontSize: 13,
+      textAlign: 'right',
+      color: brand.textPrimary
+    }
+  }, fmt.n(r.visitors)))))))));
+};
+
+// ----- TAB: CAMPAIGN DETAIL -----
+const TabCampaign = ({
+  d
+}) => /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Heading, null, "Performance by tactic"), /*#__PURE__*/React.createElement(Card, {
+  title: "Tactic performance",
+  subtitle: "Efficiency and frequency by media tactic",
+  height: 300
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    overflowX: 'auto'
+  }
+}, /*#__PURE__*/React.createElement("table", {
+  style: {
+    width: '100%',
+    fontSize: 12,
+    borderCollapse: 'collapse',
+    minWidth: 820
+  }
+}, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
+  style: {
+    borderBottom: `1px solid ${brand.border}`
+  }
+}, [['Tactic', 'left', false], ['Visits', 'right', false], ['Visitors', 'right', false], ['Impressions', 'right', false], ['Spend', 'right', false], ['CPV', 'right', true], ['CPUV', 'right', true], ['Mo. Freq', 'right', true], ['Qtr. Freq', 'right', true], ['Ann. Freq', 'right', true]].map(([h, a, accent]) => /*#__PURE__*/React.createElement("th", {
+  key: h,
+  style: {
+    padding: '8px 6px',
+    fontSize: 10,
+    color: accent ? brand.neon : brand.textSecondary,
+    fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: '0.8px',
+    textAlign: a,
+    whiteSpace: 'nowrap'
+  }
+}, h)))), /*#__PURE__*/React.createElement("tbody", null, d.tactics.map((r, i) => {
+  const cpv = r.spend / r.visits,
+    cpuv = r.spend / r.visitors;
+  const moF = r.moV / r.moU,
+    qtF = r.qtV / r.qtU,
+    anF = r.visits / r.visitors;
+  return /*#__PURE__*/React.createElement("tr", {
+    key: i,
+    style: {
+      borderBottom: `1px solid ${brand.border}`
+    }
+  }, /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '10px 6px',
+      color: brand.textPrimary,
+      fontWeight: 600
+    }
+  }, r.tactic), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '10px 6px',
+      textAlign: 'right',
+      color: brand.textPrimary
+    }
+  }, fmt.n(r.visits)), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '10px 6px',
+      textAlign: 'right',
+      color: brand.textPrimary
+    }
+  }, fmt.n(r.visitors)), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '10px 6px',
+      textAlign: 'right',
+      color: brand.textSecondary
+    }
+  }, fmt.c(r.impressions)), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '10px 6px',
+      textAlign: 'right',
+      color: brand.textSecondary
+    }
+  }, fmt.$c(r.spend)), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '10px 6px',
+      textAlign: 'right',
+      color: brand.neon,
+      fontWeight: 700
+    }
+  }, fmt.d(cpv)), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '10px 6px',
+      textAlign: 'right',
+      color: brand.neon,
+      fontWeight: 700
+    }
+  }, fmt.d(cpuv)), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '10px 6px',
+      textAlign: 'right',
+      color: brand.neon,
+      fontWeight: 700
+    }
+  }, fmt.freq(moF)), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '10px 6px',
+      textAlign: 'right',
+      color: brand.neon,
+      fontWeight: 700
+    }
+  }, fmt.freq(qtF)), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '10px 6px',
+      textAlign: 'right',
+      color: brand.neon,
+      fontWeight: 700
+    }
+  }, fmt.freq(anF)));
+}))))), /*#__PURE__*/React.createElement("div", {
+  style: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: 12,
+    marginTop: 12
+  }
+}, /*#__PURE__*/React.createElement(Card, {
+  title: "CPV by tactic",
+  subtitle: "Cost per visit — lower is better",
+  height: 260
+}, /*#__PURE__*/React.createElement(ResponsiveContainer, null, /*#__PURE__*/React.createElement(BarChart, {
+  data: d.tactics.map(r => ({
+    tactic: r.tactic,
+    cpv: parseFloat((r.spend / r.visits).toFixed(2))
+  })),
+  margin: {
+    top: 5,
+    right: 20,
+    left: 0,
+    bottom: 0
+  }
+}, /*#__PURE__*/React.createElement(CartesianGrid, {
+  stroke: brand.border,
+  strokeDasharray: "3 3",
+  vertical: false
+}), /*#__PURE__*/React.createElement(XAxis, {
+  dataKey: "tactic",
+  stroke: brand.textSecondary,
+  fontSize: 9
+}), /*#__PURE__*/React.createElement(YAxis, {
+  stroke: brand.textSecondary,
+  fontSize: 11,
+  tickFormatter: v => '$' + v
+}), /*#__PURE__*/React.createElement(Bar, {
+  dataKey: "cpv",
+  radius: [0, 0, 0, 0]
+}, d.tactics.map((_, i) => /*#__PURE__*/React.createElement(Cell, {
+  key: i,
+  fill: cc[i % cc.length]
+})))))), /*#__PURE__*/React.createElement(Card, {
+  title: "Annual frequency by tactic",
+  subtitle: "Avg annual visits per unique visitor",
+  height: 260
+}, /*#__PURE__*/React.createElement(ResponsiveContainer, null, /*#__PURE__*/React.createElement(BarChart, {
+  data: d.tactics.map(r => ({
+    tactic: r.tactic,
+    freq: parseFloat((r.visits / r.visitors).toFixed(2))
+  })),
+  margin: {
+    top: 5,
+    right: 20,
+    left: 0,
+    bottom: 0
+  }
+}, /*#__PURE__*/React.createElement(CartesianGrid, {
+  stroke: brand.border,
+  strokeDasharray: "3 3",
+  vertical: false
+}), /*#__PURE__*/React.createElement(XAxis, {
+  dataKey: "tactic",
+  stroke: brand.textSecondary,
+  fontSize: 9
+}), /*#__PURE__*/React.createElement(YAxis, {
+  stroke: brand.textSecondary,
+  fontSize: 11,
+  tickFormatter: v => v + 'x',
+  domain: [1, 'auto']
+}), /*#__PURE__*/React.createElement(Bar, {
+  dataKey: "freq",
+  radius: [0, 0, 0, 0]
+}, d.tactics.map((_, i) => /*#__PURE__*/React.createElement(Cell, {
+  key: i,
+  fill: cc[i % cc.length]
+}))))))));
+
+// ----- MAIN DASHBOARD -----
+const TABS = [{
+  id: 'overview',
+  label: 'Overview'
+}, {
+  id: 'behavior',
+  label: 'Visitor Behavior'
+}, {
+  id: 'audience',
+  label: 'Audience'
+}, {
+  id: 'origins',
+  label: 'Origins'
+}, {
+  id: 'competitive',
+  label: 'Competition'
+}, {
+  id: 'campaign',
+  label: 'Campaign Detail'
+}];
+function Area15Dashboard() {
+  const [tab, setTab] = useState('overview');
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: brand.bgPage,
+      minHeight: '100vh',
+      padding: '24px 32px',
+      fontFamily: FONT,
+      color: brand.textPrimary
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      paddingBottom: 20
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: brand.neon,
+      fontWeight: 700,
+      letterSpacing: '2px',
+      textTransform: 'uppercase'
+    }
+  }, "Visitation Intelligence Report"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 34,
+      fontWeight: 700,
+      color: brand.textPrimary,
+      marginTop: 4,
+      textTransform: 'uppercase',
+      letterSpacing: '-1.5px'
+    }
+  }, data.clientName), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: brand.textSecondary,
+      marginTop: 4
+    }
+  }, data.address, " · ", data.reportingPeriod)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 10,
+      alignItems: 'center'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 11,
+      padding: '5px 10px',
+      background: 'transparent',
+      color: brand.neon,
+      border: `1px solid ${brand.neon}`,
+      borderRadius: 0,
+      fontWeight: 700,
+      textTransform: 'uppercase',
+      letterSpacing: '1px'
+    }
+  }, "Sample Data — For Illustration Only"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => window.print(),
+    style: {
+      fontSize: 14,
+      padding: '9px 16px',
+      background: brand.neon,
+      color: brand.bgPage,
+      border: 'none',
+      borderRadius: 0,
+      fontWeight: 700,
+      cursor: 'pointer',
+      textTransform: 'uppercase',
+      letterSpacing: '1.4px'
+    }
+  }, "Export Report"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      borderBottom: `1px solid ${brand.border}`,
+      marginBottom: 20,
+      flexWrap: 'wrap'
+    }
+  }, TABS.map(t => /*#__PURE__*/React.createElement("button", {
+    key: t.id,
+    onClick: () => setTab(t.id),
+    style: {
+      padding: '12px 20px',
+      fontSize: 13,
+      fontWeight: 700,
+      background: 'transparent',
+      border: 'none',
+      borderBottom: tab === t.id ? `3px solid ${brand.neon}` : '3px solid transparent',
+      color: tab === t.id ? brand.neon : brand.textSecondary,
+      cursor: 'pointer',
+      textTransform: 'uppercase',
+      letterSpacing: '1px'
+    }
+  }, t.label))), tab === 'overview' && /*#__PURE__*/React.createElement(TabOverview, {
+    d: data
+  }), tab === 'behavior' && /*#__PURE__*/React.createElement(TabBehavior, {
+    d: data
+  }), tab === 'audience' && /*#__PURE__*/React.createElement(TabAudience, {
+    d: data
+  }), tab === 'origins' && /*#__PURE__*/React.createElement(TabOrigins, {
+    d: data
+  }), tab === 'competitive' && /*#__PURE__*/React.createElement(TabCompetitive, {
+    d: data
+  }), tab === 'campaign' && /*#__PURE__*/React.createElement(TabCampaign, {
+    d: data
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 32,
+      paddingTop: 20,
+      borderTop: `1px solid ${brand.border}`,
+      display: 'flex',
+      justifyContent: 'space-between',
+      fontSize: 11,
+      color: brand.textTertiary
+    }
+  }, /*#__PURE__*/React.createElement("div", null, "Powered by Q1Media location intelligence"), /*#__PURE__*/React.createElement("div", null, "Generated ", new Date().toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  }))));
+}
+
+// ---- mount ----
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(Area15Dashboard));
+</script>
+</body>
+</html>
